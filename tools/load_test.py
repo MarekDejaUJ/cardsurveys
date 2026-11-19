@@ -73,7 +73,14 @@ class Respondent:
             if 'id="sobTask"' in page:
                 data["result_json"] = json.dumps({c["code"]: (i if i < len(cards) - 1 else "side") for i, c in enumerate(cards)})
             else:
-                order = [c["code"] for c in cards if not c.get("attention")] + [c["code"] for c in cards if c.get("attention")]
+                att = [c["code"] for c in cards if c.get("attention")]
+                anchor = [c["code"] for c in cards if c.get("anchor")]
+                normal = [c["code"] for c in cards if not c.get("attention") and not c.get("anchor")]
+                first = 'data-attention="first"' in page
+                if 'data-closes="1"' in page:
+                    order = (att if first else []) + normal + ([] if first else att) + anchor
+                else:
+                    order = (att if first else []) + normal + anchor + ([] if first else att)
                 data["result_json"] = json.dumps(order)
                 gate = re.findall(r'name="gate" value="([^"]+)"', page)
                 if gate:

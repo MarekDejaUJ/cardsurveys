@@ -30,7 +30,7 @@ def server(tmp_path_factory):
     from cardsurveys import create_app
     from cardsurveys.extensions import db
     from cardsurveys.models import User, utcnow
-    from cardsurveys.seeds.demos import all_demos
+    from cardsurveys.seeds.demos import all_demos, tap_demo
     from cardsurveys.survey import bundle as bundles
 
     tmp: Path = tmp_path_factory.mktemp("browser")
@@ -47,6 +47,14 @@ def server(tmp_path_factory):
             s = bundles.create_from_bundle(u, b, ["pl", "en"], is_demo=True)
             s.status = "open"
             slugs[name] = s.slug
+        closing = tap_demo()
+        for m in closing["modules"]:
+            if m["key"] == "value":
+                m.update(anchor_closes=True, attention_position="first",
+                         anchor_note={"pl": "Karta odniesienia zamyka blok.", "en": "The reference card closes the block."})
+        s = bundles.create_from_bundle(u, closing, ["pl", "en"])
+        s.status = "open"
+        slugs["tap_closing"] = s.slug
         db.session.commit()
     port = _free_port()
     srv = make_server("127.0.0.1", port, app, threaded=True)
@@ -123,6 +131,7 @@ def test_polish_interface(server, page):
 
 
 def _tap_all(page):
+    page.wait_for_selector("button.tapcard:not(.done)")
     cards = page.locator("button.tapcard")
     n = cards.count()
     assert cards.nth(n - 1).get_attribute("class").find("anchor") >= 0 or page.locator("button.tapcard.anchor").count() == 0
@@ -158,6 +167,35 @@ def test_tap_widget_with_undo_gate_and_anchor(server, page):
     assert "Block 2 of" in page.inner_text(".progress")
 
 
+def test_tap_widget_closed_by_the_anchor(server, page):
+    page.goto(server["base"] + f"/s/{server['slugs']['tap_closing']}?lang=en")
+    page.click("button[value='agree']")
+    _tap_all(page)
+    with page.expect_navigation():
+        page.click("#submitBlock")
+    # first real block: the note on the reference card, one source, then the anchor closes the block
+    assert "closes the block" in page.inner_text(".anchor-note")
+    sources = page.locator("button.tapcard:not(.anchor):not(.attention)")
+    assert sources.count() == 3
+    sources.nth(0).click()
+    page.locator("button.tapcard.anchor").click()
+    assert page.locator("button.tapcard.tied").count() == 2
+    assert page.locator("button.tapcard.tied").nth(0).is_disabled()
+    assert "all equal" in page.inner_text(".taplist li.tied")
+    page.check("input[name=gate][value=yes]")
+    assert page.locator("#submitBlock").is_enabled()
+    # undo reopens the block; tapping every source places the anchor last by itself
+    page.click("#undoTap")
+    assert page.locator("button.tapcard.tied").count() == 0 and page.locator("#submitBlock").is_disabled()
+    sources.nth(1).click()
+    sources.nth(2).click()
+    assert "done" in page.locator("button.tapcard.anchor").get_attribute("class")
+    assert page.inner_text("button.tapcard.anchor .tapno") == "4"
+    assert page.locator("#submitBlock").is_enabled()
+    with page.expect_navigation():
+        page.click("#submitBlock")
+    assert "Block 2 of" in page.inner_text(".progress")
+
 def test_full_experiment_run(server, page):
     page.goto(server["base"] + f"/s/{server['slugs']['experiment']}?lang=en")
     page.click("button[value='agree']")
@@ -175,7 +213,8 @@ def test_full_experiment_run(server, page):
     for _ in range(7):
         _tap_all(page)
         page.check("input[name=gate][value=no]")
-        page.click("#submitBlock")
+        with page.expect_navigation():
+            page.click("#submitBlock")
     assert "About the study" in page.inner_text("h1") or page.locator("text=Thank you").count()
     page.click("button.primary")
     assert "Thank you" in page.inner_text("body")

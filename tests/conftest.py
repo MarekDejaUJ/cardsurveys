@@ -71,6 +71,19 @@ def unescape(s: str) -> str:
     return s.replace("&#34;", '"').replace("&#39;", "'").replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">")
 
 
+
+def tap_order(cards, closes=False, attention_first=False, keep=None):
+    """A tap sequence for a block: the cards in display order with the instructed card first
+    or last; when the anchor closes the block, the sequence ends at the anchor after the first
+    ``keep`` cards (all cards when ``keep`` is None)."""
+    att = [c["code"] for c in cards if c.get("attention")]
+    anchor = [c["code"] for c in cards if c.get("anchor")]
+    normal = [c["code"] for c in cards if not c.get("attention") and not c.get("anchor")]
+    if closes:
+        normal = normal if keep is None else normal[:keep]
+        return (att if attention_first else []) + normal + ([] if attention_first else att) + anchor
+    return (att if attention_first else []) + normal + anchor + ([] if attention_first else att)
+
 def answer_current(client, uuid: str, choices: dict | None = None, board_mode: str = "chain") -> tuple[str, int]:
     """Answer whatever screen the respondent sees now; returns (screen key, status code)."""
     choices = choices or {}
@@ -109,7 +122,7 @@ def answer_current(client, uuid: str, choices: dict | None = None, board_mode: s
         data["block_ms"] = "900"
     elif 'id="tapTask"' in html:
         cards = json.loads(unescape(CARDS.search(html).group(1)))
-        order = [c["code"] for c in cards if not c.get("attention")] + [c["code"] for c in cards if c.get("attention")]
+        order = tap_order(cards, 'data-closes="1"' in html, 'data-attention="first"' in html)
         data["result_json"] = json.dumps(order)
         data["events_json"] = json.dumps([[c, 100 * i] for i, c in enumerate(order)])
         data["block_ms"] = "1500"

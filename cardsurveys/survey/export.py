@@ -117,8 +117,8 @@ def codebook(survey) -> dict[str, Any]:
 FILE_NOTES = {
     "responses.csv": "One row per response: identifier, status (started, submitted, withdrawn, declined), language, times (UTC), survey revision, the arm and stratum of every randomizer, then one column per question and choice (several selected options joined by semicolons).",
     "answers.csv": "Every stored answer in long form: response, occasion, module, question name, value (JSON text).",
-    "blocks.csv": "One row per block screen: technique (sob or tap), variant, screen position, design block index, repeated block index, attention block and whether it was passed, cards in display order, the response (tap: cards in tapped order; sob: stratum or 'side' per card), gate answer, time on the block in milliseconds, tap events [card or 'undo', milliseconds].",
-    "pairs.csv": "Pair observations of block screens (attention blocks excluded): relation a_prec_b (item_a before item_b), b_prec_a or incomparable.",
+    "blocks.csv": "One row per block screen: technique (sob or tap), variant, screen position, design block index, repeated block index, attention block and whether it was passed, cards in display order, the response (tap: cards in tapped order, ending at the anchor when the anchor closes the block, the missing cards tied below the anchor; sob: stratum or 'side' per card), gate answer, time on the block in milliseconds, tap events [card, 'undo', 'reset' or 'auto' (anchor placed after the last card), milliseconds].",
+    "pairs.csv": "Pair observations of block screens (attention blocks excluded): relation a_prec_b (item_a before item_b), b_prec_a, incomparable, or tie (both left untapped below an anchor that closed the block).",
     "screens.csv": "Paradata per screen: first shown and submitted (UTC), time on the page measured in the browser (milliseconds, summed over visits), number of visits.",
     "allocations.csv": "Every arm assignment: randomizer, stratum, sequence number in the stratum, arm, response (empty after a withdrawal).",
 }

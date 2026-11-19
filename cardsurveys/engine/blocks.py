@@ -216,15 +216,32 @@ def read_sob(cards: list[str], placements: dict[str, Any], k: int) -> list[dict[
     return out
 
 
-def read_tap(cards: list[str], taps: list[str]) -> dict[str, Any]:
-    """Reading of a tap-order screen: the tapped sequence is a full order of the cards."""
-    if sorted(taps) != sorted(cards) or len(set(taps)) != len(taps):
+def read_tap(cards: list[str], taps: list[str], anchor: str | None = None, closes: bool = False) -> dict[str, Any]:
+    """Reading of a tap-order screen.
+
+    The tapped sequence is a full order of the cards. When the anchor closes the block, the
+    sequence ends at the anchor: the cards left untapped lie below the anchor and are tied
+    with one another (relation ``tie``), and a sequence with every card but the anchor tapped
+    gets the anchor appended.
+    """
+    if len(set(taps)) != len(taps) or not set(taps) <= set(cards):
+        raise ValueError("every card must be tapped at most once")
+    if closes and anchor in cards:
+        if anchor not in taps and set(taps) == set(cards) - {anchor}:
+            taps = list(taps) + [anchor]
+        if anchor not in taps or taps[-1] != anchor:
+            raise ValueError("the block ends at the anchor")
+    elif sorted(taps) != sorted(cards):
         raise ValueError("every card must be tapped exactly once")
     rank = {c: i for i, c in enumerate(taps)}
+    untapped = [c for c in cards if c not in rank]
+    tail = len(taps)
     obs = []
     for a, b in itertools.combinations(cards, 2):
-        obs.append({"item_a": a, "item_b": b, "relation": "a_prec_b" if rank[a] < rank[b] else "b_prec_a"})
-    return {"order": list(taps), "rank": rank, "pairs": obs}
+        ra, rb = rank.get(a, tail), rank.get(b, tail)
+        relation = "a_prec_b" if ra < rb else "b_prec_a" if rb < ra else "tie"
+        obs.append({"item_a": a, "item_b": b, "relation": relation})
+    return {"order": list(taps), "rank": rank, "untapped": untapped, "pairs": obs}
 
 
 def anchor_positions(taps: list[str], anchor_code: str) -> dict[str, int]:
@@ -235,12 +252,15 @@ def anchor_positions(taps: list[str], anchor_code: str) -> dict[str, int]:
     return {c: (1 if i < a else -1) for i, c in enumerate(taps) if c != anchor_code}
 
 
-def attention_passed(taps: list[str], attention_code: str, where: str = "last") -> bool:
-    if attention_code not in taps:
+def attention_passed(taps: list[str], attention_code: str, where: str = "last", anchor: str | None = None) -> bool:
+    """Whether the instructed card is the first or the last card tapped; the anchor, when
+    given, is left out of the count (a block closed by the anchor ends with the anchor)."""
+    seq = [c for c in taps if c != anchor] if anchor else list(taps)
+    if attention_code not in seq:
         return False
     if where == "first":
-        return taps[0] == attention_code
-    return taps[-1] == attention_code
+        return seq[0] == attention_code
+    return seq[-1] == attention_code
 
 
 def pair_tallies(observations: list[dict[str, Any]]) -> list[dict[str, Any]]:

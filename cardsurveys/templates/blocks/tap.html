@@ -5,13 +5,14 @@
 <div class="progress"><span>{% if module.practice %}{{ t('tap.practice', lang) }}{% else %}{{ t('blocks.block_n', lang, n=screen.step + 1, total=screen.total_steps) }}{% endif %}</span>
   <div class="pips">{% for i in range(screen.total_steps) %}<span class="pip{% if i < screen.step %} done{% elif i == screen.step %} cur{% endif %}"></span>{% endfor %}</div></div>
 <p class="criterion">{{ criterion|tx(lang, fallback) }}</p>
+{% if anchor_note %}<p class="anchor-note">{{ anchor_note|tx(lang, fallback) }}</p>{% endif %}
 {% if panel %}
 <details class="aid-panel" open>
   <summary>{% if panel_label %}{{ panel_label|tx(lang, fallback) }}{% else %}{{ t('tap.panel_default', lang) }}{% endif %}</summary>
   {% for text in panel %}<div class="content stimulus">{{ md(text|tx(lang, fallback)) }}</div>{% endfor %}
 </details>
 {% endif %}
-<section id="tapTask" data-cards='{{ cards|tojson }}' data-strings='{{ ui_strings("tap.", lang)|tojson }}'>
+<section id="tapTask" data-cards='{{ cards|tojson }}' data-strings='{{ ui_strings("tap.", lang)|tojson }}' data-closes="{{ 1 if anchor_closes else 0 }}" data-attention="{{ attention_position }}">
   <div class="tray-label">{{ t('tap.hint', lang) }}</div>
   <div id="tapArea"></div>
   <div id="tapSequence" aria-live="polite"></div>

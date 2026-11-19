@@ -41,14 +41,17 @@ Every text a respondent sees is a translation object, a map from language code t
 
 **sob_blocks** (Subjective Order Blocks): `relation`, `items`, and either `design` (a key such as `v8_k4_lambda3`) or `blocks` (lists of item codes); optional `instructions`, `side_label`, `shuffle_blocks`, `shuffle_cards`.
 
-**tap_blocks** (tap-order blocks): `criterion` (the sentence shown above every block), `items` with `design` or `blocks`, and optionally:
+**tap_blocks** (tap-order blocks): `criterion` (the sentence shown above every block), `items` with `design` or `blocks`, and optionally `instructions` (shown above the first block of the task) and:
 
 | Key | Meaning |
 |---|---|
 | `anchor` | a card `{"code", "label"}` added to every block and shown last |
+| `anchor_closes` | `true`: tapping the anchor ends the block; the cards left untapped lie below the anchor, tied with one another, and the anchor is placed after the last card when every other card is tapped (default `false`: every card is tapped) |
+| `anchor_note` | a sentence shown under the criterion on every block, for the meaning of the anchor card in the task |
 | `gate` | a question after every block: `{"question": {...}, "options": [{"value", "label"}]}` |
 | `duplicates` | number of design blocks shown a second time, later in the sequence |
 | `attention` | number of attention blocks: a design block with an extra card (`attention_label`) to be tapped last |
+| `attention_position` | `last` (default) or `first`: where the extra card of an attention block has to be tapped; beside an anchor that closes the block, the anchor is left out of the count |
 | `practice` | the task is a practice task |
 | `reference_order` | the correct order as tiers of item codes, first tier best |
 | `variants_by`, `variants` | an earlier answer that chooses the item set: `{"value": {"items", "design" or "blocks", "reference_order", "criterion"}}`; the variant `"*"` serves every other value |

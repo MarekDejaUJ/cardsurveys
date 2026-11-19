@@ -12,7 +12,7 @@ from cardsurveys.seeds.demos import all_demos, board_demo, experiment_demo, sob_
 from cardsurveys.survey import bundle as bundles
 from cardsurveys.survey.export import export_files
 
-from .conftest import answer_current, make_user, run_to_end, start
+from .conftest import CARDS, SCREEN, answer_current, make_user, run_to_end, start, tap_order, unescape
 
 
 def create(app, bundle, owner_email="owner@uj.edu.pl", status="open"):
@@ -112,6 +112,50 @@ def test_tap_block_refuses_incomplete_or_foreign_orders(app, client):
     with app.app_context():
         assert BlockResponse.query.count() == 0
 
+
+
+def closing_demo():
+    bundle = tap_demo()
+    for m in bundle["modules"]:
+        if m["key"] == "value":
+            m.update(anchor_closes=True, attention_position="first", attention_label={"pl": "Tej karty dotknij jako pierwszej", "en": "Tap this card first"},
+                     anchor_note={"pl": "Karta odniesienia zamyka blok.", "en": "The reference card closes the block."})
+    return bundle
+
+
+def test_tap_blocks_closed_by_the_anchor_tie_the_untapped_cards(app, client):
+    sid, slug = create(app, closing_demo())
+    uuid = start(client, slug, lang="en")
+    notes = 0
+    for _ in range(60):
+        page = client.get(f"/cards/r/{uuid}")
+        if page.status_code == 302:
+            break
+        html = page.get_data(as_text=True)
+        if 'data-closes="1"' not in html:
+            answer_current(client, uuid, {"gate": "yes"})
+            continue
+        notes += "The reference card closes the block." in html
+        assert 'data-attention="first"' in html
+        cards = json.loads(unescape(CARDS.search(html).group(1)))
+        order = tap_order(cards, True, True, keep=1)
+        resp = client.post(f"/cards/r/{uuid}", data={"screen": SCREEN.search(html).group(1), "result_json": json.dumps(order),
+                                                      "events_json": "[]", "block_ms": "900", "gate": "yes"})
+        assert resp.status_code in (302, 303)
+    assert response(app, uuid).status == "submitted" and notes == 7 + 1 + 1
+    with app.app_context():
+        r = Response.query.filter_by(uuid=uuid).first()
+        rows = BlockResponse.query.filter_by(response_id=r.id, module_key="value").all()
+        assert all(json.loads(b.result_json)[-1] == "ANCHOR" for b in rows)
+        assert all(len(json.loads(b.result_json)) == 2 for b in rows if not b.attention)
+        assert [b.attention_passed for b in rows if b.attention] == [True]
+        rels = [p.relation for p in PairObservation.query.filter_by(response_id=r.id, module_key="value").all()]
+        assert len(rels) == 8 * 6 and rels.count("tie") == 8 and rels.count("a_prec_b") + rels.count("b_prec_a") == 8 * 5
+        files = export_files(db.session.get(Survey, sid))
+    blocks = [row for row in csv.DictReader(io.StringIO(files["blocks.csv"])) if row["module_key"] == "value"]
+    assert all(json.loads(row["result"])[-1] == "ANCHOR" and len(row["cards"].split("|")) > len(json.loads(row["result"]))
+               for row in blocks if row["attention"] == "0")
+    assert "tie" in files["pairs.csv"]
 
 def test_sob_blocks_and_incomparability(app, client):
     sid, slug = create(app, sob_demo())

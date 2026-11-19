@@ -81,6 +81,30 @@ def test_read_tap_anchor_and_attention():
     assert B.attention_passed(["A", "B", "ATTN"], "ATTN") and not B.attention_passed(["ATTN", "A", "B"], "ATTN")
 
 
+
+def test_read_tap_closed_by_the_anchor_ties_the_untapped_cards():
+    cards = ["S1", "S2", "S3", "ANCHOR"]
+    r = B.read_tap(cards, ["S2", "ANCHOR"], anchor="ANCHOR", closes=True)
+    rel = {(o["item_a"], o["item_b"]): o["relation"] for o in r["pairs"]}
+    assert r["order"] == ["S2", "ANCHOR"] and r["untapped"] == ["S1", "S3"]
+    assert rel[("S1", "S3")] == "tie" and rel[("S1", "S2")] == "b_prec_a" and rel[("S3", "ANCHOR")] == "b_prec_a"
+    full = B.read_tap(cards, ["S3", "S1", "S2"], anchor="ANCHOR", closes=True)
+    assert full["order"] == ["S3", "S1", "S2", "ANCHOR"] and full["untapped"] == []
+    assert B.read_tap(cards, ["ANCHOR"], anchor="ANCHOR", closes=True)["untapped"] == ["S1", "S2", "S3"]
+    for bad in (["S2", "ANCHOR", "S1"], ["S2", "S1"], ["S2", "S2", "ANCHOR"], ["S9", "ANCHOR"]):
+        with pytest.raises(ValueError):
+            B.read_tap(cards, bad, anchor="ANCHOR", closes=True)
+    with pytest.raises(ValueError):
+        B.read_tap(cards, ["S2", "ANCHOR"])  # without closing, every card is tapped
+
+
+def test_attention_card_first_or_last_beside_a_closing_anchor():
+    assert B.attention_passed(["ATTN", "A", "ANCHOR"], "ATTN", "first", anchor="ANCHOR")
+    assert not B.attention_passed(["A", "ATTN", "ANCHOR"], "ATTN", "first", anchor="ANCHOR")
+    assert B.attention_passed(["A", "ATTN", "ANCHOR"], "ATTN", "last", anchor="ANCHOR")
+    assert not B.attention_passed(["ANCHOR"], "ATTN", "first", anchor="ANCHOR")
+    assert B.attention_passed(["ATTN", "A", "B"], "ATTN", "first")
+
 def test_pair_tallies_and_cyclic_triads():
     obs = [{"item_a": "A", "item_b": "B", "relation": "a_prec_b"}, {"item_a": "B", "item_b": "A", "relation": "a_prec_b"},
            {"item_a": "A", "item_b": "B", "relation": "incomparable"}]

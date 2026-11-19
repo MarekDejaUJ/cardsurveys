@@ -78,10 +78,13 @@ MODULE_SCHEMAS = {
         "instructions": _I18N, "criterion": _I18N, "items": {"type": "array", "items": _CARD},
         **_BLOCK_SOURCE,
         "anchor": _CARD,
+        "anchor_closes": {"type": "boolean"},
+        "anchor_note": _I18N,
         "gate": {"type": "object", "required": ["question", "options"], "properties": {"question": _I18N, "options": {"type": "array", "items": _OPTION, "minItems": 2}}, "additionalProperties": False},
         "duplicates": {"type": "integer", "minimum": 0, "maximum": 6},
         "attention": {"type": "integer", "minimum": 0, "maximum": 4},
         "attention_label": _I18N,
+        "attention_position": {"enum": ["first", "last"]},
         "shuffle_blocks": {"type": "boolean"}, "shuffle_cards": {"type": "boolean"},
         "practice": {"type": "boolean"},
         "reference_order": {"type": "array", "items": {"type": "array", "items": _CODE}},
@@ -152,7 +155,7 @@ def _texts(module: dict[str, Any]) -> list[tuple[str, Any]]:
     out: list[tuple[str, Any]] = []
     t = module.get("type")
     for field in ("title", "text", "agree_label", "decline_label", "intro", "instructions", "relation",
-                  "criterion", "side_label", "attention_label", "prompt"):
+                  "criterion", "side_label", "attention_label", "anchor_note", "prompt"):
         if field in module and module[field]:
             out.append((field, module[field]))
     for i, q in enumerate(module.get("questions", []) or []):
@@ -324,6 +327,8 @@ def validate_bundle(bundle: Any, registry_languages: list[str] | None = None) ->
                     continue
                 if module.get("anchor") and module["anchor"]["code"] in codes:
                     errors.append(_msg("anchor_code_clash", where=label))
+                if not module.get("anchor") and (module.get("anchor_closes") or module.get("anchor_note")):
+                    errors.append(_msg("anchor_missing", where=label))
                 if not src.get("design") and not src.get("blocks"):
                     errors.append(_msg("blocks_missing", where=label))
                     continue

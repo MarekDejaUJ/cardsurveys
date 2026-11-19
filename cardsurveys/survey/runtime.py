@@ -453,10 +453,14 @@ def submit_block(response: Response, module: dict[str, Any], occasion: int, step
         else:
             if not isinstance(result, list):
                 raise ValueError
-            read = B.read_tap(cards, [str(x) for x in result])
+            anchor = (module.get("anchor") or {}).get("code")
+            closes = bool(anchor and module.get("anchor_closes"))
+            read = B.read_tap(cards, [str(x) for x in result], anchor=anchor, closes=closes)
             pairs = read["pairs"]
             stored_result = read["order"]
-            passed = B.attention_passed(read["order"], "ATTN") if entry.get("attention") else None
+            passed = (B.attention_passed(read["order"], "ATTN", module.get("attention_position", "last"),
+                                         anchor=anchor if closes else None)
+                      if entry.get("attention") else None)
     except (ValueError, TypeError, KeyError):
         raise FlowError("block_incomplete")
     gate = module.get("gate") if technique == "tap" else None

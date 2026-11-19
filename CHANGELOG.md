@@ -2,6 +2,13 @@
 
 Versions follow Semantic Versioning (<https://semver.org/>): the third number changes with fixes, the second with new features that keep earlier surveys, bundles and exports working, the first with a change that breaks them. The survey bundle format and the export format (`cardsurveys-export-1`) carry their own version, which changes only with an incompatible change. Every export records the version of the system that wrote it, and the page footer shows the version of the installation. Every release is tagged in Git as `cardsurveys-vX.Y.Z`.
 
+## 1.3.0 (2026-11-19)
+
+- Tap-order blocks whose anchor card closes the block (`anchor_closes`): tapping the anchor ends the order of the block, the cards left untapped lie below the anchor, marked "=" and tied with one another, and the anchor is placed after the last card when every other card is tapped. "Undo" reopens the block. The response of such a block ends at the anchor, its untapped pairs are recorded with the relation `tie`, and the tap events record the automatic placement as `auto`. Tasks without the setting keep the full order of every card.
+- A note on the anchor card (`anchor_note`), shown under the criterion on every block of the task.
+- The position of the instructed card in attention blocks (`attention_position`): `last` as before or `first`, with the default label "Tap this card first"; beside an anchor that closes the block, the anchor is left out of the count.
+- The browser tests wait for every new page before tapping, and a browser test covers the closing anchor.
+
 ## 1.2.2 (2026-11-18)
 
 - Polish interface: the name "Card Surveys" in both languages, with the Polish home-page title "Card Surveys: ankiety z układaniem kart" and the name in the subjects and texts of the account e-mails; "porównania parami" in place of "pytania o pary" and "bloki porządkowania" in place of "bloki kolejności", in the interface, the demonstration surveys, the new-module templates and the example export. The English interface, the keys of the catalog and the behavior stay unchanged; demonstration surveys already in a database keep their titles.

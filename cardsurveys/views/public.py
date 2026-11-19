@@ -183,7 +183,8 @@ def _render_screen(survey: Survey, r: Response, screen: runtime.Screen, lang: st
         labels = {c["code"]: i18n.text_for(c["label"], lang, survey.default_language) for c in items}
         if module.get("anchor"):
             labels[module["anchor"]["code"]] = i18n.text_for(module["anchor"]["label"], lang, survey.default_language)
-        labels["ATTN"] = i18n.text_for(module.get("attention_label") or {}, lang, survey.default_language) or i18n.t("tap.attention_default", lang)
+        attention_key = "tap.attention_first_default" if module.get("attention_position") == "first" else "tap.attention_default"
+        labels["ATTN"] = i18n.text_for(module.get("attention_label") or {}, lang, survey.default_language) or i18n.t(attention_key, lang)
         cards = [{"code": c, "label": labels.get(c, c), "anchor": bool(module.get("anchor")) and c == module["anchor"]["code"],
                   "attention": c == "ATTN"} for c in entry["cards"]]
         criterion = (variant or {}).get("criterion") or module.get("criterion") or module.get("relation")
@@ -195,7 +196,9 @@ def _render_screen(survey: Survey, r: Response, screen: runtime.Screen, lang: st
             if text:
                 panel.append(text)
         ctx.update(cards=cards, entry=entry, criterion=criterion, panel=panel,
-                   panel_label=module.get("panel_label"))
+                   panel_label=module.get("panel_label"), anchor_note=module.get("anchor_note") if module.get("anchor") else None,
+                   anchor_closes=bool(module.get("anchor") and module.get("anchor_closes")),
+                   attention_position=module.get("attention_position", "last"))
         return render_template("blocks/sob.html" if t == "sob_blocks" else "blocks/tap.html", **ctx)
     if t == "stimulus":
         ctx["content"] = runtime.content_for(module, r, answers)
