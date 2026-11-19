@@ -1,0 +1,26 @@
+{% extends "blocks/_frame.html" %}
+{% from "macros.html" import screen_fields with context %}
+{% block subhead %}{{ super() }}{% if module.instructions %}<div class="sub">{{ md(module.instructions|tx(lang, fallback)) }}</div>{% endif %}{% endblock %}
+{% block content %}
+<p class="criterion">{{ t('board.relation_intro', lang) }} {{ module.relation|tx(lang, fallback) }}</p>
+<section id="board" data-kind="{{ module.kind }}" data-k="{{ module.rows or 3 }}"
+  data-elements='{{ elements|tojson }}' data-order='{{ order|tojson }}'
+  data-strings='{{ ui_strings("board.", lang)|tojson }}' {% if initial %}data-initial='{{ initial|tojson }}'{% endif %}>
+  <div class="layout">
+    <div id="boardArea"></div>
+    <div>
+      <div class="section-label">{{ t('board.records', lang) }}</div>
+      <div class="readout" id="readout" aria-live="polite"></div>
+      <form method="post" id="boardForm" class="screen-form">
+        {{ screen_fields(screen) }}
+        <input type="hidden" name="placements_json" id="placementsJson">
+        <div class="controls">
+          <button class="act ghost" type="button" id="resetBoard">{{ t('board.reset', lang) }}</button>
+          <button class="act primary" type="submit" id="submitBoard" disabled>{{ t('board.submit', lang) }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='structures.js') }}"></script><script src="{{ url_for('static', filename='boards.js') }}"></script>{% endblock %}

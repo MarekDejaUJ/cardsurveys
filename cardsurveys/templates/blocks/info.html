@@ -1,0 +1,11 @@
+{% extends "blocks/_frame.html" %}
+{% from "macros.html" import screen_fields with context %}
+{% block content %}
+<section class="screen narrow">
+  <div class="content">{{ md(module.text|tx(lang, fallback)) }}</div>
+  <form method="post" class="screen-form">
+    {{ screen_fields(screen) }}
+    <div class="controls"><button class="act primary" type="submit">{{ t('survey.next', lang) }}</button></div>
+  </form>
+</section>
+{% endblock %}

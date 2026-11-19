@@ -1,0 +1,147 @@
+{
+  "format": "cardsurveys-export-1",
+  "software": {
+    "name": "Card Surveys",
+    "version": "1.1.0"
+  },
+  "exported_at": "2026-11-17T14:05:00.386047Z",
+  "survey": {
+    "title": {
+      "en": "Demonstration: Subjective Order Blocks",
+      "pl": "Pokaz: Subjective Order Blocks"
+    },
+    "languages": [
+      "pl",
+      "en"
+    ],
+    "default_language": "pl",
+    "revision": 1,
+    "status": "open"
+  },
+  "files": {
+    "responses.csv": "One row per response: identifier, status (started, submitted, withdrawn, declined), language, times (UTC), survey revision, the arm and stratum of every randomizer, then one column per question and choice (several selected options joined by semicolons).",
+    "answers.csv": "Every stored answer in long form: response, occasion, module, question name, value (JSON text).",
+    "blocks.csv": "One row per block screen: technique (sob or tap), variant, screen position, design block index, repeated block index, attention block and whether it was passed, cards in display order, the response (tap: cards in tapped order; sob: stratum or 'side' per card), gate answer, time on the block in milliseconds, tap events [card or 'undo', milliseconds].",
+    "pairs.csv": "Pair observations of block screens (attention blocks excluded): relation a_prec_b (item_a before item_b), b_prec_a or incomparable.",
+    "screens.csv": "Paradata per screen: first shown and submitted (UTC), time on the page measured in the browser (milliseconds, summed over visits), number of visits.",
+    "allocations.csv": "Every arm assignment: randomizer, stratum, sequence number in the stratum, arm, response (empty after a withdrawal)."
+  },
+  "codebook": {
+    "languages": [
+      "pl",
+      "en"
+    ],
+    "modules": [
+      {
+        "key": "consent",
+        "type": "consent"
+      },
+      {
+        "key": "steps",
+        "type": "sob_blocks",
+        "title": {
+          "en": "Steps of a literature review",
+          "pl": "Kroki przeglądu literatury"
+        },
+        "relation": {
+          "en": "one has to be in place before the other makes sense",
+          "pl": "jedno musi być gotowe, zanim drugie ma sens"
+        },
+        "items": [
+          {
+            "code": "TOPIC",
+            "label": {
+              "en": "defining the topic",
+              "pl": "określenie tematu"
+            }
+          },
+          {
+            "code": "DB",
+            "label": {
+              "en": "choosing databases",
+              "pl": "wybór baz danych"
+            }
+          },
+          {
+            "code": "QUERY",
+            "label": {
+              "en": "building the search query",
+              "pl": "ułożenie zapytania"
+            }
+          },
+          {
+            "code": "SCREEN",
+            "label": {
+              "en": "screening the results",
+              "pl": "selekcja wyników"
+            }
+          },
+          {
+            "code": "READ",
+            "label": {
+              "en": "reading the full texts",
+              "pl": "lektura pełnych tekstów"
+            }
+          },
+          {
+            "code": "NOTES",
+            "label": {
+              "en": "notes and data extraction",
+              "pl": "notatki i ekstrakcja danych"
+            }
+          },
+          {
+            "code": "SYNTH",
+            "label": {
+              "en": "writing the synthesis",
+              "pl": "pisanie syntezy"
+            }
+          }
+        ],
+        "blocks": [
+          [
+            "TOPIC",
+            "DB",
+            "QUERY"
+          ],
+          [
+            "TOPIC",
+            "SCREEN",
+            "READ"
+          ],
+          [
+            "TOPIC",
+            "NOTES",
+            "SYNTH"
+          ],
+          [
+            "DB",
+            "SCREEN",
+            "NOTES"
+          ],
+          [
+            "DB",
+            "READ",
+            "SYNTH"
+          ],
+          [
+            "QUERY",
+            "SCREEN",
+            "SYNTH"
+          ],
+          [
+            "QUERY",
+            "READ",
+            "NOTES"
+          ]
+        ],
+        "reference_order": null,
+        "attention_card": null
+      },
+      {
+        "key": "thanks",
+        "type": "thanks"
+      }
+    ]
+  }
+}

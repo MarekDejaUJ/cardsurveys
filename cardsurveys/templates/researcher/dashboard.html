@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf with context %}
+{% block heading %}{{ t('studio.title') }}{% endblock %}
+{% block content %}
+<section class="screen">
+  <h2>{{ t('studio.my_surveys') }}</h2>
+  {% if surveys %}
+  <div class="table-wrap"><table>
+    <thead><tr><th>{{ t('studio.col_title') }}</th><th>{{ t('studio.col_status') }}</th><th>{{ t('studio.col_responses') }}</th><th>{{ t('studio.col_updated') }}</th></tr></thead>
+    <tbody>{% for s in surveys %}
+      <tr><td><a href="{{ url_for('researcher.survey_page', survey_id=s.id) }}">{{ s.settings.title|tx(ui_lang, s.default_language) }}</a>{% if s.is_demo %} <span class="muted">({{ t('studio.demo_tag') }})</span>{% endif %}</td>
+      <td><span class="badge {{ 'open' if s.status == 'open' else ('closed' if s.status == 'closed' else 'draft') }}">{{ t('status.' ~ s.status) }}</span></td>
+      <td class="num">{{ counts[s.id] }}</td><td>{{ s.updated_at.strftime('%Y-%m-%d %H:%M') }}</td></tr>
+    {% endfor %}</tbody>
+  </table></div>
+  {% else %}<p>{{ t('studio.no_surveys') }}</p>{% endif %}
+</section>
+<section class="screen">
+  <h2>{{ t('studio.new_survey') }}</h2>
+  <form method="post" action="{{ url_for('researcher.new_survey') }}" class="stack">
+    {{ csrf() }}
+    <label class="field">{{ t('studio.start_from') }}
+      <select name="template">
+        <option value="blank">{{ t('studio.blank') }}</option>
+        {% for name, b in templates %}<option value="{{ name }}">{{ b.survey.title|tx(ui_lang) }}</option>{% endfor %}
+      </select>
+    </label>
+    <fieldset class="fieldset"><legend>{{ t('studio.languages') }}</legend>
+      <div class="options inline">{% for l in ui_languages %}<label><input type="checkbox" name="languages" value="{{ l.code }}" checked> {{ l.name }}</label>{% endfor %}</div>
+      <p class="muted">{{ t('studio.languages_note') }}</p>
+    </fieldset>
+    <div class="controls"><button class="act primary" type="submit">{{ t('studio.create') }}</button><a class="act ghost" href="{{ url_for('researcher.import_bundle') }}">{{ t('studio.import') }}</a></div>
+  </form>
+</section>
+{% endblock %}

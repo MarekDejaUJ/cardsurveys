@@ -1,0 +1,30 @@
+# Card Surveys behind nginx. Add TLS with the institution's certificate or certbot (certbot --nginx -d @SERVER_NAME@).
+# The log format leaves out client addresses, in line with the application, which stores none.
+log_format cardsurveys '[$time_local] "$request" $status $body_bytes_sent $request_time';
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name @SERVER_NAME@;
+    client_max_body_size 5m;
+    access_log /var/log/nginx/cardsurveys.access.log cardsurveys;
+
+    # the bare address of the host opens the application
+    location = / {
+        return 302 @PREFIX@/;
+    }
+
+    location @PREFIX@/static/ {
+        proxy_pass http://127.0.0.1:@PORT@;
+        expires 1d;
+        add_header Cache-Control "public";
+    }
+
+    location @PREFIX@ {
+        proxy_pass http://127.0.0.1:@PORT@;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_read_timeout 60s;
+    }
+}

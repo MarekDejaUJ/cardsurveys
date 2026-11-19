@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf, errors_list with context %}
+{% block heading %}{{ t('auth.register_title') }}{% endblock %}
+{% block content %}
+<section class="screen narrow">
+  {% if closed %}<p>{{ t('auth.registration_closed') }}</p>{% else %}
+  <p>{{ t('auth.register_lead' if config.EMAIL_CONFIRMATION else 'auth.register_lead_direct', domains=domains|join(', @')) }}</p>
+  {{ errors_list(errors) }}
+  <form method="post" class="stack">
+    {{ csrf() }}
+    <label class="field">{{ t('auth.email') }}<input type="email" name="email" value="{{ email }}" required autocomplete="email"></label>
+    <label class="field">{{ t('auth.password') }}<input type="password" name="password" required autocomplete="new-password" minlength="10"></label>
+    <label class="field">{{ t('auth.password_again') }}<input type="password" name="password2" required autocomplete="new-password"></label>
+    <p class="muted">{{ t('auth.password_rule') }}</p>
+    <div class="controls"><button class="act primary" type="submit">{{ t('auth.register_button') }}</button></div>
+  </form>
+  <p class="muted"><a href="{{ url_for('auth.login') }}">{{ t('auth.have_account') }}</a>{% if config.EMAIL_CONFIRMATION %} · <a href="{{ url_for('auth.resend') }}">{{ t('auth.resend_link') }}</a>{% endif %}</p>
+  {% endif %}
+</section>
+{% endblock %}

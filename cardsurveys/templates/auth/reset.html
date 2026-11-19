@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf, errors_list with context %}
+{% block heading %}{{ t('auth.reset_title') }}{% endblock %}
+{% block content %}
+<section class="screen narrow">
+  {% if invalid %}<p>{{ t('auth.reset_invalid') }}</p><p><a href="{{ url_for('auth.forgot') }}">{{ t('auth.forgot_link') }}</a></p>
+  {% else %}
+  {{ errors_list(errors) }}
+  <form method="post" class="stack">
+    {{ csrf() }}
+    <label class="field">{{ t('auth.new_password') }}<input type="password" name="password" required autocomplete="new-password" minlength="10"></label>
+    <label class="field">{{ t('auth.password_again') }}<input type="password" name="password2" required autocomplete="new-password"></label>
+    <p class="muted">{{ t('auth.password_rule') }}</p>
+    <div class="controls"><button class="act primary" type="submit">{{ t('auth.reset_button') }}</button></div>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

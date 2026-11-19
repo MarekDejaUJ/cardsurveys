@@ -1,0 +1,19 @@
+{% extends "blocks/_frame.html" %}
+{% from "macros.html" import screen_fields with context %}
+{% block content %}
+<section class="screen">
+  <p class="prompt">{{ module.prompt|tx(lang, fallback) }}</p>
+  <form method="post" class="screen-form">
+    {{ screen_fields(screen) }}
+    <div class="choicegrid">
+      {% for o in module.options %}
+      <label class="choicecard">
+        <span><input type="radio" name="choice" value="{{ o.value }}" required> <span class="title">{{ o.label|tx(lang, fallback) }}</span></span>
+        {% if o.preview %}<span class="preview">{{ o.preview|tx(lang, fallback) }}</span>{% endif %}
+      </label>
+      {% endfor %}
+    </div>
+    <div class="controls"><button class="act primary" type="submit">{{ t('survey.next', lang) }}</button></div>
+  </form>
+</section>
+{% endblock %}

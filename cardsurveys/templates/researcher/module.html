@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf, i18n_inputs with context %}
+{% block heading %}{{ t('module.' ~ module.type) }}: {{ module.key }}{% endblock %}
+{% block subhead %}<p class="sub"><a href="{{ url_for('researcher.survey_page', survey_id=survey.id) }}">← {{ survey.settings.title|tx(ui_lang, survey.default_language) }}</a> · {{ t('module_help.' ~ module.type) }}</p>{% endblock %}
+{% block content %}
+{% if messages %}<section class="screen tight"><ul class="msglist">{% for m in messages %}<li class="{{ 'error' if m.code in ('schema',) or m.code.startswith('duplicate') or m.code.startswith('condition') else 'warning' }}">{{ msg(m) }}</li>{% endfor %}</ul></section>{% endif %}
+{% if problem %}<div class="notice error">{{ t('editor.' ~ problem.problem) }} ({{ t('field_label.' ~ problem.field) }}{% if problem.line %}, {{ t('editor.line', n=problem.line) }}{% endif %})</div>{% endif %}
+
+<section class="screen">
+  <form method="post" class="stack">
+    {{ csrf() }}<input type="hidden" name="mode" value="form">
+    <label class="field">{{ t('field_label.key') }}<input name="new_key" value="{{ module.key }}" pattern="[A-Za-z][A-Za-z0-9_]{0,63}"></label>
+    {% for name, kind, extra in spec %}
+      {% if kind in ('i18n_line', 'i18n_area') %}
+        {{ i18n_inputs(name, values, langs, area=(kind == 'i18n_area'), label=t('field_label.' ~ name)) }}
+      {% elif kind in ('cards', 'blocks', 'tiers', 'arms', 'options_preview') %}
+        <label class="field">{{ t('field_label.' ~ name) }}<span class="muted">{{ t('field_hint.' ~ kind, langs=langs|join(' | ')) }}</span><textarea name="{{ name }}" class="codearea">{{ values.get(name, '') }}</textarea></label>
+      {% elif kind == 'card' %}
+        <label class="field">{{ t('field_label.' ~ name) }}<span class="muted">{{ t('field_hint.card', langs=langs|join(' | ')) }}</span><input name="{{ name }}" value="{{ values.get(name, '') }}" class="copyline"></label>
+      {% elif kind == 'gate' %}
+        {{ i18n_inputs('gate_question', values, langs, label=t('field_label.gate_question')) }}
+        <label class="field">{{ t('field_label.gate_options') }}<span class="muted">{{ t('field_hint.options', langs=langs|join(' | ')) }}</span><textarea name="gate_options" class="codearea">{{ values.get('gate_options', '') }}</textarea></label>
+      {% elif kind == 'design' %}
+        <label class="field">{{ t('field_label.design') }}<span class="muted">{{ t('field_hint.design') }}</span>
+          <select name="design"><option value="">{{ t('editor.no_design') }}</option>{% for d in designs %}<option value="{{ d.key }}" {% if values.get('design') == d.key %}selected{% endif %}>v={{ d.v }}, k={{ d.k }}, λ={{ d['lambda'] }}, r={{ d.r }}, b={{ d.b }}</option>{% endfor %}</select></label>
+      {% elif kind == 'select' %}
+        <label class="field">{{ t('field_label.' ~ name) }}<select name="{{ name }}">{% for opt in extra %}<option value="{{ opt }}" {% if values.get(name) == opt %}selected{% endif %}>{{ t('demo.board_' ~ opt) }}</option>{% endfor %}</select></label>
+      {% elif kind == 'bool' %}
+        <label class="check"><input type="checkbox" name="{{ name }}" {% if values.get(name) %}checked{% endif %}> {{ t('field_label.' ~ name) }}</label>
+      {% elif kind == 'json' %}
+        <label class="field">{{ t('field_label.' ~ name) }}<span class="muted">{{ t('field_hint.condition') }}</span><textarea name="{{ name }}" class="codearea">{{ values.get(name, '') }}</textarea></label>
+      {% elif kind in ('int', 'name', 'names') %}
+        <label class="field">{{ t('field_label.' ~ name) }}{% if kind == 'names' %}<span class="muted">{{ t('field_hint.names') }}</span>{% endif %}<input name="{{ name }}" value="{{ values.get(name, '') }}"></label>
+      {% endif %}
+    {% endfor %}
+    {% if module.variants %}<div class="notice">{{ t('editor.variants_in_json', n=module.variants|length) }}</div>{% endif %}
+    <div class="controls"><button class="act primary" type="submit">{{ t('studio.save') }}</button><a class="act ghost" href="{{ url_for('researcher.survey_page', survey_id=survey.id) }}">{{ t('studio.back') }}</a></div>
+  </form>
+</section>
+
+{% if module.type == 'form' %}
+<section class="screen">
+  <h2>{{ t('editor.questions') }}</h2>
+  {% for q in module.questions %}
+  {% set qi = loop.index0 %}
+  <details class="screen tight" {% if loop.last and module.questions|length < 3 %}open{% endif %}>
+    <summary><span class="mtype">{{ t('qtype.' ~ q.type) }}</span> {{ q.name }} · {{ q.label|tx(ui_lang, survey.default_language) }}</summary>
+    {% with q=q, idx=qi %}{% include "researcher/_question.html" %}{% endwith %}
+  </details>
+  {% endfor %}
+  <details class="screen tight"><summary>{{ t('editor.add_question') }}</summary>
+    {% with q={'name': '', 'type': 'radio', 'label': {}, 'options': []}, idx='' %}{% include "researcher/_question.html" %}{% endwith %}
+  </details>
+</section>
+{% endif %}
+
+{% if module.type in ('stimulus', 'choice', 'debrief') %}
+<section class="screen">
+  <h2>{{ t('editor.contents') }}</h2>
+  <p class="muted">{{ t('editor.contents_help_' ~ module.type) }}</p>
+  <form method="post" action="{{ url_for('researcher.edit_contents', survey_id=survey.id, key=module.key) }}" class="stack">
+    {{ csrf() }}
+    <input type="hidden" name="rows" value="{{ content_rows|length }}">
+    {% for row in content_rows + [{'outer': '', 'stratum': '', 'text': {}}] %}
+    {% set i = loop.index0 %}
+    <fieldset class="fieldset"><legend>{{ t('editor.content_row', n=loop.index) if not loop.last else t('editor.content_new') }}</legend>
+      <div class="inline-forms">
+        {% if module.type != 'debrief' %}<label class="field inline">{{ t('editor.content_outer_' ~ module.type) }}<input name="r{{ i }}_outer" value="{{ row.outer }}" size="10"></label>{% endif %}
+        <label class="field inline">{{ t('editor.content_stratum') }}<input name="r{{ i }}_stratum" value="{{ row.stratum }}" size="10"></label>
+        {% if not loop.last %}<label class="check"><input type="checkbox" name="r{{ i }}_delete"> {{ t('editor.delete') }}</label>{% endif %}
+      </div>
+      <div class="langcols" style="--cols: {{ langs|length }}">{% for code in langs %}<label class="field"><span class="langtag">{{ code }}</span><textarea name="r{{ i }}_text__{{ code }}" rows="6">{{ row.text.get(code, '') }}</textarea></label>{% endfor %}</div>
+    </fieldset>
+    {% endfor %}
+    <div class="controls"><button class="act primary" type="submit">{{ t('studio.save') }}</button></div>
+  </form>
+</section>
+{% endif %}
+
+<section class="screen">
+  <details class="json"><summary>{{ t('editor.json_mode') }}</summary>
+    <form method="post" class="stack">
+      {{ csrf() }}<input type="hidden" name="mode" value="json">
+      <textarea name="module_json" class="codearea tall" rows="24">{{ module_json }}</textarea>
+      <div class="controls"><button class="act primary" type="submit">{{ t('studio.save') }}</button></div>
+    </form>
+  </details>
+</section>
+{% endblock %}

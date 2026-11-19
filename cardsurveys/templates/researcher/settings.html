@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf with context %}
+{% block heading %}{{ t('studio.settings') }}{% endblock %}
+{% block content %}
+<section class="screen">
+  <form method="post" class="stack">
+    {{ csrf() }}
+    <fieldset class="fieldset"><legend>{{ t('studio.languages') }}</legend>
+      <div class="options inline">{% for l in ui_languages %}<label><input type="checkbox" name="languages" value="{{ l.code }}" {% if l.code in s.languages %}checked{% endif %}> {{ l.name }}</label>{% endfor %}</div>
+      <label class="field inline">{{ t('studio.default_language') }}<select name="default_language">{% for code in s.languages %}<option value="{{ code }}" {% if code == s.default_language %}selected{% endif %}>{{ code }}</option>{% endfor %}</select></label>
+      <p class="muted">{{ t('studio.languages_change_note') }}</p>
+    </fieldset>
+    <div class="section-label">{{ t('studio.survey_title') }}</div>
+    <div class="langcols" style="--cols: {{ s.languages|length }}">{% for code in s.languages %}<label class="field"><span class="langtag">{{ code }}</span><input name="title__{{ code }}" value="{{ s.title.get(code, '') }}"></label>{% endfor %}</div>
+    <div class="section-label">{{ t('studio.description') }}</div>
+    <div class="langcols" style="--cols: {{ s.languages|length }}">{% for code in s.languages %}<label class="field"><span class="langtag">{{ code }}</span><textarea name="description__{{ code }}">{{ (s.description or {}).get(code, '') }}</textarea></label>{% endfor %}</div>
+    <div class="checkgrid">
+      <label class="check"><input type="checkbox" name="detect_browser_language" {% if s.get('detect_browser_language', True) %}checked{% endif %}> {{ t('studio.detect_language') }}</label>
+      <label class="check"><input type="checkbox" name="allow_language_switch" {% if s.get('allow_language_switch', True) %}checked{% endif %}> {{ t('studio.allow_switch') }}</label>
+      <label class="check"><input type="checkbox" name="retest" {% if s.get('retest') %}checked{% endif %}> {{ t('studio.retest') }}</label>
+    </div>
+    <div class="controls"><button class="act primary" type="submit">{{ t('studio.save') }}</button><a class="act ghost" href="{{ url_for('researcher.survey_page', survey_id=survey.id) }}">{{ t('studio.back') }}</a></div>
+  </form>
+</section>
+{% endblock %}

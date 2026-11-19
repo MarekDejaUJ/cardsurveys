@@ -1,0 +1,96 @@
+{
+  "format": "cardsurveys-bundle",
+  "modules": [
+    {
+      "key": "consent",
+      "text": {
+        "en": "This is a **demonstration** of the technique. Answers go to a demonstration database and serve no study.\n\nYou can withdraw at any time; your answers are then deleted.",
+        "pl": "To jest **pokaz** techniki. Odpowiedzi trafiają do bazy demonstracyjnej i nie służą żadnemu badaniu.\n\nMożesz w każdej chwili zrezygnować; Twoje odpowiedzi zostaną wtedy usunięte."
+      },
+      "type": "consent"
+    },
+    {
+      "confirm_critical": true,
+      "elements": [
+        {
+          "code": "RQ",
+          "label": {
+            "en": "research question",
+            "pl": "pytanie badawcze"
+          }
+        },
+        {
+          "code": "LIT",
+          "label": {
+            "en": "literature review",
+            "pl": "przegląd literatury"
+          }
+        },
+        {
+          "code": "METH",
+          "label": {
+            "en": "choice of method",
+            "pl": "wybór metody"
+          }
+        },
+        {
+          "code": "DATA",
+          "label": {
+            "en": "data collection",
+            "pl": "zbieranie danych"
+          }
+        },
+        {
+          "code": "ANAL",
+          "label": {
+            "en": "analysis",
+            "pl": "analiza"
+          }
+        }
+      ],
+      "instructions": {
+        "en": "Tap a card and then the card that comes after it to draw an arrow. Arrows implied by the drawn ones appear by themselves.",
+        "pl": "Dotknij karty, a potem karty, która jest po niej, aby narysować strzałkę. Strzałki wynikające z narysowanych pojawią się same."
+      },
+      "key": "board",
+      "kind": "arrow",
+      "randomize_order": true,
+      "relation": {
+        "en": "one must be settled before the other can be done well",
+        "pl": "jedno musi być ustalone, zanim da się dobrze wykonać drugie"
+      },
+      "title": {
+        "en": "Arrow board",
+        "pl": "Plansza strzałek"
+      },
+      "type": "board"
+    },
+    {
+      "key": "thanks",
+      "text": {
+        "en": "Thank you. The demonstration is complete.",
+        "pl": "Dziękujemy. Pokaz został zakończony."
+      },
+      "type": "thanks"
+    }
+  ],
+  "survey": {
+    "allow_language_switch": true,
+    "default_language": "pl",
+    "description": {
+      "en": "Stages of a research project on one board.",
+      "pl": "Etapy projektu badawczego na jednej planszy."
+    },
+    "detect_browser_language": true,
+    "languages": [
+      "pl",
+      "en"
+    ],
+    "retest": false,
+    "title": {
+      "en": "Demonstration: arrow board",
+      "pl": "Pokaz: plansza strzałek"
+    }
+  },
+  "version": 1
+}

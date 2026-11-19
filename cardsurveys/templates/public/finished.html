@@ -1,0 +1,12 @@
+{% extends "blocks/_frame.html" %}
+{% set fallback = survey.default_language %}
+{% block heading %}{{ (thanks.title|tx(lang, fallback)) if thanks and thanks.title else t('survey.thanks_title', lang) }}{% endblock %}
+{% block content %}
+<section class="screen narrow">
+  <div class="content">{% if thanks %}{{ md(thanks.text|tx(lang, fallback)) }}{% else %}<p>{{ t('survey.thanks_text', lang) }}</p>{% endif %}</div>
+  {% if retest_url %}
+  <p>{{ t('survey.retest_intro', lang) }}</p>
+  <p class="share">{{ public_url(retest_url) }}</p>
+  {% elif retest_done %}<p class="muted">{{ t('survey.retest_done', lang) }}</p>{% endif %}
+</section>
+{% endblock %}

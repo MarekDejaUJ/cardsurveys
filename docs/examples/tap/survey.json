@@ -1,0 +1,191 @@
+{
+  "format": "cardsurveys-bundle",
+  "modules": [
+    {
+      "key": "consent",
+      "text": {
+        "en": "This is a **demonstration** of the technique. Answers go to a demonstration database and serve no study.\n\nYou can withdraw at any time; your answers are then deleted.",
+        "pl": "To jest **pokaz** techniki. Odpowiedzi trafiają do bazy demonstracyjnej i nie służą żadnemu badaniu.\n\nMożesz w każdej chwili zrezygnować; Twoje odpowiedzi zostaną wtedy usunięte."
+      },
+      "type": "consent"
+    },
+    {
+      "blocks": [
+        [
+          "BAN",
+          "LEM",
+          "APL"
+        ]
+      ],
+      "criterion": {
+        "en": "Order the fruit from the sweetest to the least sweet.",
+        "pl": "Ułóż owoce od najsłodszego do najmniej słodkiego."
+      },
+      "instructions": {
+        "en": "Tap the cards in order: first the one that fits best. Undo a mistake with the 'Undo' button.",
+        "pl": "Dotykaj kart w kolejności: najpierw tę, która pasuje najbardziej. Pomyłkę cofniesz przyciskiem „Cofnij”."
+      },
+      "items": [
+        {
+          "code": "BAN",
+          "label": {
+            "en": "banana",
+            "pl": "banan"
+          }
+        },
+        {
+          "code": "LEM",
+          "label": {
+            "en": "lemon",
+            "pl": "cytryna"
+          }
+        },
+        {
+          "code": "APL",
+          "label": {
+            "en": "apple",
+            "pl": "jabłko"
+          }
+        }
+      ],
+      "key": "practice",
+      "practice": true,
+      "shuffle_blocks": false,
+      "title": {
+        "en": "Practice block",
+        "pl": "Blok próbny"
+      },
+      "type": "tap_blocks"
+    },
+    {
+      "anchor": {
+        "code": "ANCHOR",
+        "label": {
+          "en": "nothing / no one",
+          "pl": "nic / nikt"
+        }
+      },
+      "attention": 1,
+      "attention_label": {
+        "en": "Tap this card last",
+        "pl": "Tej karty dotknij na końcu"
+      },
+      "criterion": {
+        "en": "Order the sources by how much each could give you for your text right now.",
+        "pl": "Ułóż źródła według tego, ile każde z nich mogłoby Ci teraz dać do pracy nad tekstem."
+      },
+      "design": "v7_k3_lambda1",
+      "duplicates": 1,
+      "gate": {
+        "options": [
+          {
+            "label": {
+              "en": "yes",
+              "pl": "tak"
+            },
+            "value": "yes"
+          },
+          {
+            "label": {
+              "en": "no",
+              "pl": "nie"
+            },
+            "value": "no"
+          }
+        ],
+        "question": {
+          "en": "Was this block easy for you?",
+          "pl": "Czy ten blok był dla Ciebie łatwy?"
+        }
+      },
+      "instructions": {
+        "en": "On every screen tap the cards in order. The card 'nothing / no one' is the reference: sources you tap after it would give you nothing right now.",
+        "pl": "Na każdym ekranie dotknij kart w kolejności. Karta „nic / nikt” jest punktem odniesienia: źródła, które dotkniesz po niej, nie dałyby Ci teraz nic."
+      },
+      "items": [
+        {
+          "code": "SUP",
+          "label": {
+            "en": "supervisor",
+            "pl": "promotor lub opiekun"
+          }
+        },
+        {
+          "code": "PEER",
+          "label": {
+            "en": "fellow students",
+            "pl": "koleżanki i koledzy"
+          }
+        },
+        {
+          "code": "DBS",
+          "label": {
+            "en": "library databases",
+            "pl": "bazy danych biblioteki"
+          }
+        },
+        {
+          "code": "LIBN",
+          "label": {
+            "en": "subject librarian",
+            "pl": "bibliotekarz dziedzinowy"
+          }
+        },
+        {
+          "code": "CHAT",
+          "label": {
+            "en": "AI chatbot",
+            "pl": "czat z modelem językowym"
+          }
+        },
+        {
+          "code": "FORUM",
+          "label": {
+            "en": "online forums",
+            "pl": "fora internetowe"
+          }
+        },
+        {
+          "code": "BOOK",
+          "label": {
+            "en": "textbooks",
+            "pl": "podręczniki"
+          }
+        }
+      ],
+      "key": "value",
+      "title": {
+        "en": "What each source could give",
+        "pl": "Co może dać każde źródło"
+      },
+      "type": "tap_blocks"
+    },
+    {
+      "key": "thanks",
+      "text": {
+        "en": "Thank you. The demonstration is complete.",
+        "pl": "Dziękujemy. Pokaz został zakończony."
+      },
+      "type": "thanks"
+    }
+  ],
+  "survey": {
+    "allow_language_switch": true,
+    "default_language": "pl",
+    "description": {
+      "en": "Sources of help with a text, ordered against the card 'nothing / no one'.",
+      "pl": "Źródła pomocy w pracy nad tekstem, porządkowane względem karty „nic / nikt”."
+    },
+    "detect_browser_language": true,
+    "languages": [
+      "pl",
+      "en"
+    ],
+    "retest": false,
+    "title": {
+      "en": "Demonstration: tap-order blocks with an anchor",
+      "pl": "Pokaz: bloki porządkowania z kartą odniesienia"
+    }
+  },
+  "version": 1
+}

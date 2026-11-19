@@ -1,0 +1,6 @@
+{% extends "blocks/_frame.html" %}
+{% set fallback = survey.default_language %}
+{% block heading %}{{ t('survey.declined_title' if declined else 'survey.withdrawn_title', lang) }}{% endblock %}
+{% block content %}
+<section class="screen narrow"><p>{{ t('survey.declined_text' if declined else 'survey.withdrawn_text', lang) }}</p></section>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block heading %}{{ t('demo.board_' ~ kind) }}{% endblock %}
+{% block subhead %}<p class="sub">{{ t('demo.does_' ~ kind) }}</p>{% endblock %}
+{% block content %}
+{% set active = kind %}{% include "demo/_nav.html" %}
+<p class="criterion">{{ t('board.relation_intro', lang) }} {{ relation }}</p>
+<section id="board" data-kind="{{ kind }}" data-k="{{ k }}" data-elements='{{ cards|tojson }}' data-strings='{{ ui_strings("board.", lang)|tojson }}'>
+  <div class="layout">
+    <div id="boardArea"></div>
+    <div>
+      <div class="section-label">{{ t('board.records', lang) }}</div>
+      <div class="readout" id="readout" aria-live="polite"></div>
+      <div class="controls"><button class="act ghost" type="button" id="resetBoard">{{ t('board.reset', lang) }}</button></div>
+    </div>
+  </div>
+</section>
+<section class="screen">
+  <h2>{{ t('demo.what_records') }}</h2>
+  <p>{{ t('demo.records_' ~ kind) }}</p>
+  {% if recordable_count is not none and poset_count %}<p>{{ t('demo.count', n=cards|length, count=recordable_count, total=poset_count) }}</p>{% endif %}
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='structures.js') }}"></script><script src="{{ url_for('static', filename='boards.js') }}"></script>{% endblock %}

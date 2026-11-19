@@ -1,0 +1,28 @@
+<form method="post" action="{{ url_for('researcher.edit_question', survey_id=survey.id, key=module.key) }}" class="stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="index" value="{{ idx }}">
+  <div class="inline-forms">
+    <label class="field inline">{{ t('field_label.name') }}<input name="name" value="{{ q.name }}" required pattern="[A-Za-z][A-Za-z0-9_]{0,63}"></label>
+    <label class="field inline">{{ t('field_label.qtype') }}<select name="qtype">{% for qt in ('text', 'textarea', 'number', 'select', 'radio', 'checkbox', 'yesno') %}<option value="{{ qt }}" {% if q.type == qt %}selected{% endif %}>{{ t('qtype.' ~ qt) }}</option>{% endfor %}</select></label>
+    <label class="check"><input type="checkbox" name="required" {% if q.required %}checked{% endif %}> {{ t('field_label.required') }}</label>
+  </div>
+  <div class="section-label">{{ t('field_label.label') }}</div>
+  <div class="langcols" style="--cols: {{ langs|length }}">{% for code in langs %}<label class="field"><span class="langtag">{{ code }}</span><input name="label__{{ code }}" value="{{ (q.label or {}).get(code, '') }}"></label>{% endfor %}</div>
+  <div class="section-label">{{ t('field_label.help') }}</div>
+  <div class="langcols" style="--cols: {{ langs|length }}">{% for code in langs %}<label class="field"><span class="langtag">{{ code }}</span><input name="help__{{ code }}" value="{{ (q.help or {}).get(code, '') }}"></label>{% endfor %}</div>
+  <label class="field">{{ t('field_label.options') }}<span class="muted">{{ t('field_hint.options', langs=langs|join(' | ')) }}</span>
+    <textarea name="options" class="codearea">{% for o in q.options or [] %}{{ o.value }}{% for code in langs %} | {{ o.label.get(code, '') }}{% endfor %}
+{% endfor %}</textarea></label>
+  <div class="inline-forms">
+    <label class="field inline">{{ t('field_label.min') }}<input name="min" value="{{ q.min if q.min is defined else '' }}" size="6"></label>
+    <label class="field inline">{{ t('field_label.max') }}<input name="max" value="{{ q.max if q.max is defined else '' }}" size="6"></label>
+  </div>
+  <label class="field">{{ t('field_label.condition') }}<span class="muted">{{ t('field_hint.condition') }}</span><textarea name="condition" class="codearea">{{ q.condition|tojson if q.condition else '' }}</textarea></label>
+  <div class="controls">
+    <button class="act primary small" type="submit" name="action" value="save">{{ t('studio.save') }}</button>
+    {% if idx != '' %}
+    <button class="act ghost small" type="submit" name="action" value="up">↑</button>
+    <button class="act ghost small" type="submit" name="action" value="delete" data-confirm="{{ t('editor.delete_question_confirm') }}">{{ t('editor.delete') }}</button>
+    {% endif %}
+  </div>
+</form>

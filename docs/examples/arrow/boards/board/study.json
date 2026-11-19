@@ -1,0 +1,35 @@
+{
+  "format": "cardsurveys-export-1",
+  "elements": [
+    {
+      "code": "RQ",
+      "label": "research question"
+    },
+    {
+      "code": "LIT",
+      "label": "literature review"
+    },
+    {
+      "code": "METH",
+      "label": "choice of method"
+    },
+    {
+      "code": "DATA",
+      "label": "data collection"
+    },
+    {
+      "code": "ANAL",
+      "label": "analysis"
+    }
+  ],
+  "board": {
+    "kind": "arrow",
+    "k": 3
+  },
+  "class": "po",
+  "judgments": "prec",
+  "relation": "one must be settled before the other can be done well",
+  "confirm_critical": true,
+  "retest": false,
+  "randomize_order": true
+}

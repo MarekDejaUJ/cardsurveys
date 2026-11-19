@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block heading %}{{ t('auth.verify_title') }}{% endblock %}
+{% block content %}
+<section class="screen narrow">
+  <p>{{ t('auth.verify_ok' if ok else 'auth.verify_bad') }}</p>
+  <p>{% if ok %}<a class="act primary" href="{{ url_for('auth.login') }}">{{ t('nav.login') }}</a>{% else %}<a href="{{ url_for('auth.resend') }}">{{ t('auth.resend_link') }}</a>{% endif %}</p>
+</section>
+{% endblock %}

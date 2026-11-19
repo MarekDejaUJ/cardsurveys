@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf with context %}
+{% block heading %}{{ survey.settings.title|tx(ui_lang, survey.default_language) }}{% endblock %}
+{% block subhead %}<p class="sub"><span class="badge {{ 'open' if survey.status == 'open' else ('closed' if survey.status == 'closed' else 'draft') }}">{{ t('status.' ~ survey.status) }}</span> · {{ t('studio.languages') }}: {{ survey.languages|join(', ') }} · {{ t('studio.revision', n=survey.revision) }} · {{ t('studio.responses_n', n=live) }}</p>{% endblock %}
+{% block content %}
+<section class="screen">
+  <h2>{{ t('studio.link') }}</h2>
+  <p class="share">{{ public_url(url_for('public.start', slug=survey.slug)) }}</p>
+  <div class="inline-forms">
+    <form method="post" action="{{ url_for('researcher.preview', survey_id=survey.id) }}">{{ csrf() }}<button class="act ghost small" type="submit">{{ t('studio.preview') }}</button></form>
+    {% if survey.status != 'open' %}
+    <form method="post" action="{{ url_for('researcher.change_status', survey_id=survey.id) }}">{{ csrf() }}<input type="hidden" name="action" value="publish"><button class="act primary small" type="submit" {% if blocking %}disabled{% endif %}>{{ t('studio.publish') }}</button></form>
+    {% else %}
+    <form method="post" action="{{ url_for('researcher.change_status', survey_id=survey.id) }}">{{ csrf() }}<input type="hidden" name="action" value="close"><button class="act ghost small" type="submit">{{ t('studio.close') }}</button></form>
+    {% endif %}
+    {% if survey.status == 'closed' %}<form method="post" action="{{ url_for('researcher.change_status', survey_id=survey.id) }}">{{ csrf() }}<input type="hidden" name="action" value="draft"><button class="act ghost small" type="submit">{{ t('studio.to_draft') }}</button></form>{% endif %}
+    <a class="act ghost small" href="{{ url_for('researcher.monitor_page', survey_id=survey.id) }}">{{ t('studio.monitor') }}</a>
+    <a class="act ghost small" href="{{ url_for('researcher.download_zip', survey_id=survey.id) }}">{{ t('studio.export_zip') }}</a>
+    <a class="act ghost small" href="{{ url_for('researcher.survey_settings', survey_id=survey.id) }}">{{ t('studio.settings') }}</a>
+    <a class="act ghost small" href="{{ url_for('researcher.edit_bundle', survey_id=survey.id) }}">{{ t('studio.edit_bundle') }}</a>
+    <a class="act ghost small" href="{{ url_for('researcher.download_bundle', survey_id=survey.id) }}">{{ t('studio.download_bundle') }}</a>
+    <form method="post" action="{{ url_for('researcher.duplicate', survey_id=survey.id) }}">{{ csrf() }}<button class="act ghost small" type="submit">{{ t('studio.duplicate') }}</button></form>
+  </div>
+  {% if live %}<div class="notice">{{ t('studio.live_warning') }}</div>{% endif %}
+</section>
+
+{% if result.errors or result.warnings %}
+<section class="screen">
+  <h2>{{ t('studio.checks') }}</h2>
+  {% if blocking %}<p class="muted">{{ t('studio.publish_blocked') }}</p>{% endif %}
+  <ul class="msglist">
+    {% for m in result.errors %}<li class="error">{{ msg(m) }}</li>{% endfor %}
+    {% for m in result.warnings %}<li class="warning">{{ msg(m) }}</li>{% endfor %}
+  </ul>
+</section>
+{% else %}<div class="notice ok">{{ t('studio.checks_clean') }}</div>{% endif %}
+
+<section class="screen">
+  <h2>{{ t('studio.modules') }}</h2>
+  <ol class="modlist">
+    {% for m in survey.modules %}
+    <li>
+      <span class="idx">{{ loop.index }}</span>
+      <span><span class="mtype">{{ t('module.' ~ m.type) }}</span><a href="{{ url_for('researcher.edit_module', survey_id=survey.id, key=m.key) }}">{{ m.key }}</a>{% if m.title %} · {{ m.title|tx(ui_lang, survey.default_language) }}{% endif %}{% if m.condition %} <span class="muted">({{ t('studio.conditional') }})</span>{% endif %}</span>
+      <span class="actions">
+        <form method="post" action="{{ url_for('researcher.move_module', survey_id=survey.id, key=m.key) }}">{{ csrf() }}<input type="hidden" name="direction" value="up"><button class="act ghost small" type="submit" title="{{ t('studio.up') }}" {% if loop.first %}disabled{% endif %}>↑</button></form>
+        <form method="post" action="{{ url_for('researcher.move_module', survey_id=survey.id, key=m.key) }}">{{ csrf() }}<input type="hidden" name="direction" value="down"><button class="act ghost small" type="submit" title="{{ t('studio.down') }}" {% if loop.last %}disabled{% endif %}>↓</button></form>
+        <form method="post" action="{{ url_for('researcher.delete_module', survey_id=survey.id, key=m.key) }}">{{ csrf() }}<button class="act ghost small" type="submit" data-confirm="{{ t('studio.delete_module_confirm') }}">✕</button></form>
+      </span>
+    </li>
+    {% endfor %}
+  </ol>
+  <form method="post" action="{{ url_for('researcher.add_module', survey_id=survey.id) }}" class="inline-forms">
+    {{ csrf() }}
+    <select name="type" class="narrow">{% for mt in module_types %}<option value="{{ mt }}">{{ t('module.' ~ mt) }}</option>{% endfor %}</select>
+    <button class="act ghost" type="submit">{{ t('studio.add_module') }}</button>
+  </form>
+</section>
+
+<section class="screen">
+  <h2>{{ t('studio.danger') }}</h2>
+  <form method="post" action="{{ url_for('researcher.delete_survey', survey_id=survey.id) }}" class="inline-forms">
+    {{ csrf() }}
+    <label class="field inline">{{ t('studio.type_slug', slug=survey.slug) }}<input name="confirm" autocomplete="off"></label>
+    <button class="act ghost" type="submit">{{ t('studio.delete_survey') }}</button>
+  </form>
+</section>
+{% endblock %}

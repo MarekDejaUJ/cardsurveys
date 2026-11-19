@@ -1,0 +1,144 @@
+{
+  "format": "cardsurveys-bundle",
+  "modules": [
+    {
+      "key": "consent",
+      "text": {
+        "en": "This is a **demonstration** of the technique. Answers go to a demonstration database and serve no study.\n\nYou can withdraw at any time; your answers are then deleted.",
+        "pl": "To jest **pokaz** techniki. Odpowiedzi trafiają do bazy demonstracyjnej i nie służą żadnemu badaniu.\n\nMożesz w każdej chwili zrezygnować; Twoje odpowiedzi zostaną wtedy usunięte."
+      },
+      "type": "consent"
+    },
+    {
+      "blocks": [
+        [
+          "TOPIC",
+          "DB",
+          "QUERY"
+        ],
+        [
+          "TOPIC",
+          "SCREEN",
+          "READ"
+        ],
+        [
+          "TOPIC",
+          "NOTES",
+          "SYNTH"
+        ],
+        [
+          "DB",
+          "SCREEN",
+          "NOTES"
+        ],
+        [
+          "DB",
+          "READ",
+          "SYNTH"
+        ],
+        [
+          "QUERY",
+          "SCREEN",
+          "SYNTH"
+        ],
+        [
+          "QUERY",
+          "READ",
+          "NOTES"
+        ]
+      ],
+      "instructions": {
+        "en": "Place the items of the block on levels. An item on a lower level is a foundation for an item on a higher level. Items on the same level or in the side bin have no order between them.",
+        "pl": "Ułóż elementy bloku na poziomach. Element na niższym poziomie jest podstawą dla elementu na wyższym. Elementy na tym samym poziomie albo w schowku nie mają między sobą kolejności."
+      },
+      "items": [
+        {
+          "code": "TOPIC",
+          "label": {
+            "en": "defining the topic",
+            "pl": "określenie tematu"
+          }
+        },
+        {
+          "code": "DB",
+          "label": {
+            "en": "choosing databases",
+            "pl": "wybór baz danych"
+          }
+        },
+        {
+          "code": "QUERY",
+          "label": {
+            "en": "building the search query",
+            "pl": "ułożenie zapytania"
+          }
+        },
+        {
+          "code": "SCREEN",
+          "label": {
+            "en": "screening the results",
+            "pl": "selekcja wyników"
+          }
+        },
+        {
+          "code": "READ",
+          "label": {
+            "en": "reading the full texts",
+            "pl": "lektura pełnych tekstów"
+          }
+        },
+        {
+          "code": "NOTES",
+          "label": {
+            "en": "notes and data extraction",
+            "pl": "notatki i ekstrakcja danych"
+          }
+        },
+        {
+          "code": "SYNTH",
+          "label": {
+            "en": "writing the synthesis",
+            "pl": "pisanie syntezy"
+          }
+        }
+      ],
+      "key": "steps",
+      "relation": {
+        "en": "one has to be in place before the other makes sense",
+        "pl": "jedno musi być gotowe, zanim drugie ma sens"
+      },
+      "title": {
+        "en": "Steps of a literature review",
+        "pl": "Kroki przeglądu literatury"
+      },
+      "type": "sob_blocks"
+    },
+    {
+      "key": "thanks",
+      "text": {
+        "en": "Thank you. The demonstration is complete.",
+        "pl": "Dziękujemy. Pokaz został zakończony."
+      },
+      "type": "thanks"
+    }
+  ],
+  "survey": {
+    "allow_language_switch": true,
+    "default_language": "pl",
+    "description": {
+      "en": "Steps of a literature review in blocks of three.",
+      "pl": "Kroki przeglądu literatury w blokach po trzy."
+    },
+    "detect_browser_language": true,
+    "languages": [
+      "pl",
+      "en"
+    ],
+    "retest": false,
+    "title": {
+      "en": "Demonstration: Subjective Order Blocks",
+      "pl": "Pokaz: Subjective Order Blocks"
+    }
+  },
+  "version": 1
+}

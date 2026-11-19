@@ -1,0 +1,9 @@
+[Unit]
+Description=Card Surveys database backup
+
+[Service]
+Type=oneshot
+User=@USER@
+Group=@USER@
+EnvironmentFile=@ENV_FILE@
+ExecStart=@APP_DIR@/deploy/backup.sh

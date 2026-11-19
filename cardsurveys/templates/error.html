@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block heading %}{{ t('error.' ~ code ~ '.title') }}{% endblock %}
+{% block content %}
+<section class="screen narrow">
+  <p>{{ t('error.' ~ code ~ '.text') }}</p>
+  <p><a class="act ghost" href="{{ url_for('public.index') }}">{{ t('error.home') }}</a></p>
+</section>
+{% endblock %}

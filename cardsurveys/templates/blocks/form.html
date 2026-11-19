@@ -1,0 +1,31 @@
+{% extends "blocks/_frame.html" %}
+{% from "macros.html" import screen_fields with context %}
+{% block content %}
+<section class="screen narrow">
+  {% if module.intro %}<div class="content">{{ md(module.intro|tx(lang, fallback)) }}</div>{% endif %}
+  <form method="post" class="screen-form" novalidate>
+    {{ screen_fields(screen) }}
+    {% for q in questions %}
+    {% set v = values.get(q.name, [] if q.type == 'checkbox' else '') %}
+    <div class="question{% if errors.get(q.name) %} has-error{% endif %}" {% if q.condition %}data-cond='{{ q.condition|tojson }}'{% endif %}>
+      <label class="qlabel" for="q_{{ q.name }}">{{ q.label|tx(lang, fallback) }}{% if q.required %} <span aria-hidden="true">*</span>{% endif %}</label>
+      {% if q.help %}<p class="help">{{ q.help|tx(lang, fallback) }}</p>{% endif %}
+      {% if q.type == 'text' %}<input id="q_{{ q.name }}" name="{{ q.name }}" value="{{ v }}" maxlength="500">
+      {% elif q.type == 'textarea' %}<textarea id="q_{{ q.name }}" name="{{ q.name }}" maxlength="5000">{{ v }}</textarea>
+      {% elif q.type == 'number' %}<input id="q_{{ q.name }}" name="{{ q.name }}" value="{{ v }}" inputmode="decimal">
+      {% elif q.type == 'select' %}
+        <select id="q_{{ q.name }}" name="{{ q.name }}"><option value="">{{ t('survey.choose', lang) }}</option>{% for o in q.options %}<option value="{{ o.value }}" {% if v == o.value %}selected{% endif %}>{{ o.label|tx(lang, fallback) }}</option>{% endfor %}</select>
+      {% elif q.type == 'radio' %}
+        <div class="options">{% for o in q.options %}<label><input type="radio" name="{{ q.name }}" value="{{ o.value }}" {% if v == o.value %}checked{% endif %}> {{ o.label|tx(lang, fallback) }}</label>{% endfor %}</div>
+      {% elif q.type == 'checkbox' %}
+        <div class="options">{% for o in q.options %}<label><input type="checkbox" name="{{ q.name }}" value="{{ o.value }}" {% if o.value in v %}checked{% endif %}> {{ o.label|tx(lang, fallback) }}</label>{% endfor %}</div>
+      {% elif q.type == 'yesno' %}
+        <div class="options inline"><label><input type="radio" name="{{ q.name }}" value="yes" {% if v == 'yes' %}checked{% endif %}> {{ t('survey.yes', lang) }}</label><label><input type="radio" name="{{ q.name }}" value="no" {% if v == 'no' %}checked{% endif %}> {{ t('survey.no', lang) }}</label></div>
+      {% endif %}
+      {% for e in errors.get(q.name, []) %}<div class="err">{{ t('field.' ~ e, lang) }}</div>{% endfor %}
+    </div>
+    {% endfor %}
+    <div class="controls"><button class="act primary" type="submit">{{ t('survey.next', lang) }}</button></div>
+  </form>
+</section>
+{% endblock %}

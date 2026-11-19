@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% set page_lang = lang %}
+{% block title %}{{ survey.settings.title|tx(lang, fallback) }}{% endblock %}
+{% block eyebrow %}<div class="eyebrow">{{ survey.settings.title|tx(lang, fallback) }}</div>{% endblock %}
+{% block heading %}{{ (module.title|tx(lang, fallback)) if module and module.title else '' }}{% endblock %}
+{% block nav %}
+{% if survey.languages|length > 1 and survey.settings.get('allow_language_switch', True) %}
+<nav class="sitenav" aria-label="{{ t('survey.language', lang) }}">
+  {% for code in survey.languages %}<a href="?lang={{ code }}" class="{% if code == lang %}active{% endif %}" hreflang="{{ code }}">{{ code|upper }}</a>{% endfor %}
+</nav>
+{% endif %}
+{% endblock %}
+{% block subhead %}
+{% if response and response.preview %}<div class="preview-banner">{{ t('survey.preview_banner', lang) }}</div>{% endif %}
+{% if progress is defined %}<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ (progress * 100)|round|int }}"><span style="width: {{ (progress * 100)|round(1) }}%"></span></div>{% endif %}
+{% endblock %}
+{% block footer %}
+<footer class="foot">
+  {% if response and response.status == 'started' %}
+  <form method="post" action="{{ url_for('public.withdraw', uuid=response.uuid) }}" class="withdraw">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="linkbtn" type="submit" data-confirm="{{ t('survey.withdraw_confirm', lang) }}">{{ t('survey.withdraw', lang) }}</button>
+  </form>
+  {% endif %}
+  <a href="{{ url_for('public.privacy', lang=lang) }}">{{ t('nav.privacy', lang) }}</a>
+</footer>
+{% endblock %}

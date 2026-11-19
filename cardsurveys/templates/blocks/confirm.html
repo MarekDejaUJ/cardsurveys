@@ -1,0 +1,21 @@
+{% extends "blocks/_frame.html" %}
+{% from "macros.html" import screen_fields with context %}
+{% block content %}
+<section class="screen narrow">
+  <p class="prompt">{{ t('board.confirm_intro', lang) }}</p>
+  <p class="criterion">{{ t('board.relation_intro', lang) }} {{ module.relation|tx(lang, fallback) }}</p>
+  <form method="post" class="screen-form">
+    {{ screen_fields(screen) }}
+    {% for p in pairs %}
+    <div class="question">
+      <span class="qlabel">{{ t('board.confirm_question', lang, a=p.a, b=p.b) }}</span>
+      <div class="options inline">
+        <label><input type="radio" name="pair_{{ p.i }}_{{ p.j }}" value="unrelated" required> {{ t('board.confirm_unrelated', lang) }}</label>
+        <label><input type="radio" name="pair_{{ p.i }}_{{ p.j }}" value="related"> {{ t('board.confirm_related', lang) }}</label>
+      </div>
+    </div>
+    {% endfor %}
+    <div class="controls"><button class="act primary" type="submit">{{ t('survey.next', lang) }}</button></div>
+  </form>
+</section>
+{% endblock %}

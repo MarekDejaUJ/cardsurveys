@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block heading %}{{ t('demo.tap') }}{% endblock %}
+{% block subhead %}<p class="sub">{{ t('demo.does_tap') }}</p>{% endblock %}
+{% block content %}
+{% set active = 'tap' %}{% include "demo/_nav.html" %}
+<p class="criterion">{{ criterion }}</p>
+<section id="tapTask" data-mode="demo" data-cards='{{ cards|tojson }}' data-strings='{{ ui_strings("tap.", lang)|tojson }}'>
+  <div class="tray-label">{{ t('tap.hint', lang) }}</div>
+  <div id="tapArea"></div>
+  <div id="tapSequence" aria-live="polite"></div>
+  <form id="blockForm">
+    <input type="hidden" id="resultJson"><input type="hidden" id="eventsJson"><input type="hidden" id="blockMs">
+    <div class="controls">
+      <button class="act ghost" type="button" id="undoTap">{{ t('tap.undo', lang) }}</button>
+      <button class="act ghost" type="button" id="resetTap">{{ t('blocks.reset', lang) }}</button>
+    </div>
+  </form>
+</section>
+<section class="screen">
+  <h2>{{ t('demo.what_records') }}</h2>
+  <p>{{ t('demo.records_tap') }}</p>
+  <p>{{ t('demo.tap_anchor') }}</p>
+  <h2>{{ t('demo.designs_title') }}</h2>
+  <p>{{ t('demo.designs_text') }}</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>v</th><th>k</th><th>λ</th><th>r</th><th>b</th></tr></thead>
+    <tbody>{% for d in designs %}<tr><td class="num">{{ d.v }}</td><td class="num">{{ d.k }}</td><td class="num">{{ d['lambda'] }}</td><td class="num">{{ d.r }}</td><td class="num">{{ d.b }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='tap.js') }}"></script>{% endblock %}

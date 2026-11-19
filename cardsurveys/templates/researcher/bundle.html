@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf with context %}
+{% block heading %}{{ t('studio.edit_bundle') }}{% endblock %}
+{% block content %}
+<section class="screen">
+  <p>{{ t('studio.bundle_lead') }}</p>
+  {% if messages %}<ul class="msglist">{% for m in messages %}<li class="error">{{ msg(m) }}</li>{% endfor %}</ul>{% endif %}
+  <form method="post" class="stack">
+    {{ csrf() }}
+    <textarea name="bundle_text" class="codearea tall" rows="30">{{ text }}</textarea>
+    <div class="controls"><button class="act primary" type="submit">{{ t('studio.save') }}</button><a class="act ghost" href="{{ url_for('researcher.survey_page', survey_id=survey.id) }}">{{ t('studio.back') }}</a></div>
+  </form>
+</section>
+{% endblock %}

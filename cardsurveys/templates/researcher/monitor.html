@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf with context %}
+{% block heading %}{{ t('studio.monitor') }}{% endblock %}
+{% block subhead %}<p class="sub"><a href="{{ url_for('researcher.survey_page', survey_id=survey.id) }}">← {{ survey.settings.title|tx(ui_lang, survey.default_language) }}</a></p>{% endblock %}
+{% block content %}
+<section class="screen">
+  <h2>{{ t('monitor.responses') }}</h2>
+  <dl class="kv">
+    <dt>{{ t('monitor.total') }}</dt><dd>{{ data.total }}</dd>
+    {% for st, n in data.status.items() %}<dt>{{ t('rstatus.' ~ st) }}</dt><dd>{{ n }}</dd>{% endfor %}
+    <dt>{{ t('monitor.median_minutes') }}</dt><dd>{{ '%.1f'|format(data.median_minutes) if data.median_minutes is not none else '–' }}</dd>
+    <dt>{{ t('monitor.attention') }}</dt><dd>{{ data.attention.passed }} / {{ data.attention.shown }}</dd>
+  </dl>
+</section>
+<section class="screen">
+  <h2>{{ t('monitor.time_per_module') }}</h2>
+  <div class="table-wrap"><table><thead><tr><th>{{ t('monitor.module') }}</th><th>{{ t('monitor.type') }}</th><th>n</th><th>{{ t('monitor.median_seconds') }}</th></tr></thead>
+  <tbody>{% for m in data.modules %}<tr><td>{{ m.key }}</td><td>{{ t('module.' ~ m.type) }}</td><td class="num">{{ m.n }}</td><td class="num">{{ '%.0f'|format(m.median_seconds) if m.median_seconds is not none else '–' }}</td></tr>{% endfor %}</tbody></table></div>
+</section>
+{% if data.balance %}
+<section class="screen">
+  <h2>{{ t('monitor.balance') }}</h2>
+  {% for key, strata in data.balance.items() %}
+  <div class="section-label">{{ key }}</div>
+  <div class="table-wrap"><table><thead><tr><th>{{ t('monitor.stratum') }}</th><th>{{ t('monitor.arms') }}</th></tr></thead>
+  <tbody>{% for s, arms in strata.items() %}<tr><td>{{ s }}</td><td>{% for a, n in arms.items()|sort %}{{ a }}: {{ n }}{% if not loop.last %}, {% endif %}{% endfor %}</td></tr>{% endfor %}</tbody></table></div>
+  {% endfor %}
+</section>
+{% endif %}
+{% if data.gates %}
+<section class="screen">
+  <h2>{{ t('monitor.gates') }}</h2>
+  {% for key, counts in data.gates.items() %}<p><strong>{{ key }}</strong>: {% for v, n in counts.items()|sort %}{{ v }} {{ n }}{% if not loop.last %}; {% endif %}{% endfor %}</p>{% endfor %}
+</section>
+{% endif %}
+{% for key, b in data.board_summaries.items() %}
+<section class="screen">
+  <h2>{{ t('monitor.board', key=key) }}</h2>
+  {% if b.N %}
+  <p>{{ t('monitor.board_n', n=b.N) }} {{ t('monitor.agreement', v='%.3f'|format(b.agreement)) }}</p>
+  <div class="table-wrap"><table><thead><tr><th>{{ t('monitor.pair') }}</th><th>a ≺ b</th><th>b ≺ a</th><th>||</th></tr></thead>
+  <tbody>{% for p in b.pair_shares %}<tr><td>{{ b.codes[p.a] }}, {{ b.codes[p.b] }}</td><td class="num">{{ '%.2f'|format(p.a_prec_b) }}</td><td class="num">{{ '%.2f'|format(p.b_prec_a) }}</td><td class="num">{{ '%.2f'|format(p.apart) }}</td></tr>{% endfor %}</tbody></table></div>
+  <p>{{ t('monitor.common_part') }}: {% for i, j in b.common_part %}{{ b.codes[i] }} ≺ {{ b.codes[j] }}{% if not loop.last %}; {% endif %}{% else %}–{% endfor %}</p>
+  {% if b.nearest is not none %}<p>{{ t('monitor.nearest') }}: {% for C in b.nearest %}[{% for i, j in C %}{{ b.codes[i] }} ≺ {{ b.codes[j] }}{% if not loop.last %}; {% endif %}{% else %}–{% endfor %}]{% if not loop.last %} {% endif %}{% endfor %} ({{ t('monitor.mean_distance', v='%.2f'|format(b.mean_distance)) }})</p>{% endif %}
+  {% else %}<p class="muted">{{ t('monitor.no_boards') }}</p>{% endif %}
+</section>
+{% endfor %}
+<section class="screen">
+  <h2>{{ t('monitor.export') }}</h2>
+  <p><a class="act primary small" href="{{ url_for('researcher.download_zip', survey_id=survey.id) }}">{{ t('studio.export_zip') }}</a></p>
+  <p class="muted">{{ t('monitor.export_note') }}</p>
+  <div class="inline-forms">{% for name in ('responses.csv', 'answers.csv', 'blocks.csv', 'pairs.csv', 'screens.csv', 'allocations.csv', 'description.json') %}<a class="act ghost small" href="{{ url_for('researcher.download_file', survey_id=survey.id, name=name) }}">{{ name }}</a>{% endfor %}</div>
+</section>
+<section class="screen">
+  <h2>{{ t('monitor.cleanup') }}</h2>
+  <div class="inline-forms">
+    <form method="post" action="{{ url_for('researcher.delete_responses', survey_id=survey.id) }}">{{ csrf() }}<input type="hidden" name="which" value="preview"><button class="act ghost small" type="submit">{{ t('monitor.delete_previews') }}</button></form>
+    <form method="post" action="{{ url_for('researcher.delete_responses', survey_id=survey.id) }}" class="inline-forms">{{ csrf() }}<input type="hidden" name="which" value="all"><label class="field inline">{{ t('studio.type_slug', slug=survey.slug) }}<input name="confirm" autocomplete="off"></label><button class="act ghost small" type="submit">{{ t('monitor.delete_all') }}</button></form>
+  </div>
+</section>
+{% endblock %}

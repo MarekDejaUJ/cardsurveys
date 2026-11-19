@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block heading %}{{ t('demo.sob') }}{% endblock %}
+{% block subhead %}<p class="sub">{{ t('demo.does_sob') }}</p>{% endblock %}
+{% block content %}
+{% set active = 'sob' %}{% include "demo/_nav.html" %}
+<p class="criterion">{{ t('sob.relation_intro', lang) }} {{ relation }}</p>
+<section id="sobTask" data-cards='{{ items|tojson }}' data-strings='{{ ui_strings("sob.", lang)|tojson }}'>
+  <div class="layout">
+    <div id="sobArea"></div>
+    <div>
+      <div class="section-label">{{ t('sob.records', lang) }}</div>
+      <div class="readout" id="readout" aria-live="polite"></div>
+      <form id="blockForm" action="#">
+        <input type="hidden" id="resultJson"><input type="hidden" id="eventsJson"><input type="hidden" id="blockMs">
+        <div class="controls"><button class="act ghost" type="button" id="resetBlock">{{ t('blocks.reset', lang) }}</button><button class="act primary hidden" type="submit" id="submitBlock" disabled>{{ t('blocks.next', lang) }}</button></div>
+      </form>
+    </div>
+  </div>
+</section>
+<section class="screen">
+  <h2>{{ t('demo.what_records') }}</h2>
+  <p>{{ t('demo.records_sob') }}</p>
+  <p>{{ t('demo.sob_design') }}</p>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='sob.js') }}"></script>{% endblock %}

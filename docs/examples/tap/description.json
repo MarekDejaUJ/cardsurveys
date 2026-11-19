@@ -1,0 +1,220 @@
+{
+  "format": "cardsurveys-export-1",
+  "software": {
+    "name": "Card Surveys",
+    "version": "1.1.0"
+  },
+  "exported_at": "2026-11-17T14:05:11.429047Z",
+  "survey": {
+    "title": {
+      "en": "Demonstration: tap-order blocks with an anchor",
+      "pl": "Pokaz: bloki porządkowania z kartą odniesienia"
+    },
+    "languages": [
+      "pl",
+      "en"
+    ],
+    "default_language": "pl",
+    "revision": 1,
+    "status": "open"
+  },
+  "files": {
+    "responses.csv": "One row per response: identifier, status (started, submitted, withdrawn, declined), language, times (UTC), survey revision, the arm and stratum of every randomizer, then one column per question and choice (several selected options joined by semicolons).",
+    "answers.csv": "Every stored answer in long form: response, occasion, module, question name, value (JSON text).",
+    "blocks.csv": "One row per block screen: technique (sob or tap), variant, screen position, design block index, repeated block index, attention block and whether it was passed, cards in display order, the response (tap: cards in tapped order; sob: stratum or 'side' per card), gate answer, time on the block in milliseconds, tap events [card or 'undo', milliseconds].",
+    "pairs.csv": "Pair observations of block screens (attention blocks excluded): relation a_prec_b (item_a before item_b), b_prec_a or incomparable.",
+    "screens.csv": "Paradata per screen: first shown and submitted (UTC), time on the page measured in the browser (milliseconds, summed over visits), number of visits.",
+    "allocations.csv": "Every arm assignment: randomizer, stratum, sequence number in the stratum, arm, response (empty after a withdrawal)."
+  },
+  "codebook": {
+    "languages": [
+      "pl",
+      "en"
+    ],
+    "modules": [
+      {
+        "key": "consent",
+        "type": "consent"
+      },
+      {
+        "key": "practice",
+        "type": "tap_blocks",
+        "title": {
+          "en": "Practice block",
+          "pl": "Blok próbny"
+        },
+        "criterion": {
+          "en": "Order the fruit from the sweetest to the least sweet.",
+          "pl": "Ułóż owoce od najsłodszego do najmniej słodkiego."
+        },
+        "items": [
+          {
+            "code": "BAN",
+            "label": {
+              "en": "banana",
+              "pl": "banan"
+            }
+          },
+          {
+            "code": "LEM",
+            "label": {
+              "en": "lemon",
+              "pl": "cytryna"
+            }
+          },
+          {
+            "code": "APL",
+            "label": {
+              "en": "apple",
+              "pl": "jabłko"
+            }
+          }
+        ],
+        "blocks": [
+          [
+            "BAN",
+            "LEM",
+            "APL"
+          ]
+        ],
+        "reference_order": null,
+        "attention_card": null
+      },
+      {
+        "key": "value",
+        "type": "tap_blocks",
+        "title": {
+          "en": "What each source could give",
+          "pl": "Co może dać każde źródło"
+        },
+        "criterion": {
+          "en": "Order the sources by how much each could give you for your text right now.",
+          "pl": "Ułóż źródła według tego, ile każde z nich mogłoby Ci teraz dać do pracy nad tekstem."
+        },
+        "anchor": {
+          "code": "ANCHOR",
+          "label": {
+            "en": "nothing / no one",
+            "pl": "nic / nikt"
+          }
+        },
+        "gate": {
+          "options": [
+            {
+              "label": {
+                "en": "yes",
+                "pl": "tak"
+              },
+              "value": "yes"
+            },
+            {
+              "label": {
+                "en": "no",
+                "pl": "nie"
+              },
+              "value": "no"
+            }
+          ],
+          "question": {
+            "en": "Was this block easy for you?",
+            "pl": "Czy ten blok był dla Ciebie łatwy?"
+          }
+        },
+        "items": [
+          {
+            "code": "SUP",
+            "label": {
+              "en": "supervisor",
+              "pl": "promotor lub opiekun"
+            }
+          },
+          {
+            "code": "PEER",
+            "label": {
+              "en": "fellow students",
+              "pl": "koleżanki i koledzy"
+            }
+          },
+          {
+            "code": "DBS",
+            "label": {
+              "en": "library databases",
+              "pl": "bazy danych biblioteki"
+            }
+          },
+          {
+            "code": "LIBN",
+            "label": {
+              "en": "subject librarian",
+              "pl": "bibliotekarz dziedzinowy"
+            }
+          },
+          {
+            "code": "CHAT",
+            "label": {
+              "en": "AI chatbot",
+              "pl": "czat z modelem językowym"
+            }
+          },
+          {
+            "code": "FORUM",
+            "label": {
+              "en": "online forums",
+              "pl": "fora internetowe"
+            }
+          },
+          {
+            "code": "BOOK",
+            "label": {
+              "en": "textbooks",
+              "pl": "podręczniki"
+            }
+          }
+        ],
+        "blocks": [
+          [
+            "SUP",
+            "PEER",
+            "DBS"
+          ],
+          [
+            "SUP",
+            "LIBN",
+            "CHAT"
+          ],
+          [
+            "SUP",
+            "FORUM",
+            "BOOK"
+          ],
+          [
+            "PEER",
+            "LIBN",
+            "FORUM"
+          ],
+          [
+            "PEER",
+            "CHAT",
+            "BOOK"
+          ],
+          [
+            "DBS",
+            "LIBN",
+            "BOOK"
+          ],
+          [
+            "DBS",
+            "CHAT",
+            "FORUM"
+          ]
+        ],
+        "reference_order": null,
+        "attention_card": "ATTN"
+      },
+      {
+        "key": "thanks",
+        "type": "thanks"
+      }
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block heading %}{{ t('admin.all_surveys') }}{% endblock %}
+{% block subhead %}<p class="sub"><a href="{{ url_for('admin.users') }}">{{ t('admin.title') }}</a></p>{% endblock %}
+{% block content %}
+<section class="screen">
+  <div class="table-wrap"><table>
+    <thead><tr><th>{{ t('studio.col_title') }}</th><th>{{ t('admin.owner') }}</th><th>{{ t('studio.col_status') }}</th><th>{{ t('studio.col_responses') }}</th><th>{{ t('admin.change_owner') }}</th></tr></thead>
+    <tbody>{% for s in surveys %}
+    <tr><td><a href="{{ url_for('researcher.survey_page', survey_id=s.id) }}">{{ s.settings.title|tx(ui_lang, s.default_language) }}</a></td><td>{{ s.owner.email }}</td>
+      <td>{{ t('status.' ~ s.status) }}</td><td class="num">{{ counts[s.id] }}</td>
+      <td><form method="post" action="{{ url_for('admin.change_owner', survey_id=s.id) }}" class="inline-forms"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input name="email" type="email" placeholder="{{ t('auth.email') }}" size="22"><button class="act ghost small" type="submit">{{ t('admin.apply') }}</button></form></td></tr>
+    {% endfor %}</tbody>
+  </table></div>
+</section>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "blocks/_frame.html" %}
+{% from "macros.html" import screen_fields with context %}
+{% block heading %}{{ (module.title|tx(lang, fallback)) if module.title else t('survey.debrief_title', lang) }}{% endblock %}
+{% block content %}
+<section class="screen narrow">
+  <div class="content">{{ md(content|tx(lang, fallback)) }}</div>
+  <form method="post" class="screen-form">
+    {{ screen_fields(screen) }}
+    <div class="controls"><button class="act primary" type="submit">{{ t('survey.finish', lang) }}</button></div>
+  </form>
+  {% if module.get('offer_withdrawal', True) %}
+  <p class="muted">{{ t('survey.debrief_withdraw', lang) }}</p>
+  <form method="post" action="{{ url_for('public.withdraw', uuid=response.uuid) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="act ghost small" type="submit" data-confirm="{{ t('survey.withdraw_confirm', lang) }}">{{ t('survey.withdraw_now', lang) }}</button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf with context %}
+{% block heading %}{{ t('auth.forgot_title') }}{% endblock %}
+{% block content %}
+<section class="screen narrow">
+  {% if by_admin %}<p>{{ t('auth.forgot_by_admin') }}</p>{% else %}
+  <p>{{ t('auth.forgot_lead') }}</p>
+  <form method="post" class="stack">
+    {{ csrf() }}
+    <label class="field">{{ t('auth.email') }}<input type="email" name="email" required autocomplete="email"></label>
+    <div class="controls"><button class="act primary" type="submit">{{ t('auth.forgot_button') }}</button></div>
+  </form>{% endif %}
+</section>
+{% endblock %}

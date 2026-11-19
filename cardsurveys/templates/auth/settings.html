@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf, errors_list with context %}
+{% block heading %}{{ t('auth.settings_title') }}{% endblock %}
+{% block content %}
+<section class="screen narrow">
+  <dl class="kv"><dt>{{ t('auth.email') }}</dt><dd>{{ current_user.email }}</dd><dt>{{ t('auth.role') }}</dt><dd>{{ t('role.' ~ current_user.role) }}</dd></dl>
+</section>
+<section class="screen narrow">
+  <h2>{{ t('auth.interface_language') }}</h2>
+  <form method="post" class="inline-forms">
+    {{ csrf() }}<input type="hidden" name="action" value="language">
+    <select name="ui_language" class="narrow">{% for l in ui_languages if l.interface %}<option value="{{ l.code }}" {% if l.code == ui_lang %}selected{% endif %}>{{ l.name }}</option>{% endfor %}</select>
+    <button class="act ghost" type="submit">{{ t('studio.save') }}</button>
+  </form>
+</section>
+<section class="screen narrow">
+  <h2>{{ t('auth.change_password') }}</h2>
+  {{ errors_list(errors) }}
+  <form method="post" class="stack">
+    {{ csrf() }}<input type="hidden" name="action" value="password">
+    <label class="field">{{ t('auth.current_password') }}<input type="password" name="current" required autocomplete="current-password"></label>
+    <label class="field">{{ t('auth.new_password') }}<input type="password" name="password" required autocomplete="new-password" minlength="10"></label>
+    <label class="field">{{ t('auth.password_again') }}<input type="password" name="password2" required autocomplete="new-password"></label>
+    <div class="controls"><button class="act primary" type="submit">{{ t('auth.change_password') }}</button></div>
+  </form>
+</section>
+{% endblock %}

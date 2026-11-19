@@ -1,0 +1,16 @@
+{% extends "blocks/_frame.html" %}
+{% from "macros.html" import screen_fields with context %}
+{% block heading %}{{ (module.title|tx(lang, fallback)) if module.title else t('survey.consent_title', lang) }}{% endblock %}
+{% block content %}
+<section class="screen narrow">
+  {% if survey.settings.description %}<div class="content muted">{{ md(survey.settings.description|tx(lang, fallback)) }}</div>{% endif %}
+  <div class="content consent">{{ md(module.text|tx(lang, fallback)) }}</div>
+  <form method="post" class="screen-form">
+    {{ screen_fields(screen) }}
+    <div class="controls">
+      <button class="act primary" type="submit" name="decision" value="agree">{{ (module.agree_label|tx(lang, fallback)) if module.agree_label else t('survey.agree', lang) }}</button>
+      <button class="act ghost" type="submit" name="decision" value="decline">{{ (module.decline_label|tx(lang, fallback)) if module.decline_label else t('survey.decline', lang) }}</button>
+    </div>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf with context %}
+{% block heading %}{{ t('studio.import') }}{% endblock %}
+{% block content %}
+<section class="screen">
+  <p>{{ t('studio.import_lead') }}</p>
+  {% if messages %}<ul class="msglist">{% for m in messages %}<li class="error">{{ msg(m) }}</li>{% endfor %}</ul>{% endif %}
+  <form method="post" enctype="multipart/form-data" class="stack">
+    {{ csrf() }}
+    <label class="field">{{ t('studio.import_file') }}<input type="file" name="bundle" accept="application/json,.json"></label>
+    <label class="field">{{ t('studio.import_paste') }}<textarea name="bundle_text" class="codearea tall">{{ text }}</textarea></label>
+    <div class="controls"><button class="act primary" type="submit">{{ t('studio.import_button') }}</button></div>
+  </form>
+</section>
+{% endblock %}

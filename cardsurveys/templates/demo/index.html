@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block heading %}{{ t('demo.title') }}{% endblock %}
+{% block subhead %}<p class="sub">{{ t('demo.lead') }}</p>{% endblock %}
+{% block content %}
+{% set active = 'index' %}{% include "demo/_nav.html" %}
+<section class="screen">
+  <div class="table-wrap"><table>
+    <thead><tr><th>{{ t('demo.col_technique') }}</th><th>{{ t('demo.col_does') }}</th><th>{{ t('demo.col_records') }}</th></tr></thead>
+    <tbody>
+      {% for k in kinds %}<tr><td><a href="{{ url_for('public.demo_board', kind=k) }}">{{ t('demo.board_' ~ k) }}</a></td><td>{{ t('demo.does_' ~ k) }}</td><td>{{ t('demo.records_' ~ k) }}</td></tr>{% endfor %}
+      <tr><td><a href="{{ url_for('public.demo_sob') }}">{{ t('demo.sob') }}</a></td><td>{{ t('demo.does_sob') }}</td><td>{{ t('demo.records_sob') }}</td></tr>
+      <tr><td><a href="{{ url_for('public.demo_tap') }}">{{ t('demo.tap') }}</a></td><td>{{ t('demo.does_tap') }}</td><td>{{ t('demo.records_tap') }}</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted">{{ t('demo.nothing_stored') }}</p>
+</section>
+{% endblock %}

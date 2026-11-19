@@ -1,0 +1,6 @@
+{% extends "blocks/_frame.html" %}
+{% set fallback = survey.default_language %}
+{% block heading %}{{ t('survey.closed_title', lang) }}{% endblock %}
+{% block content %}
+<section class="screen narrow"><p>{{ t('survey.closed_text', lang) }}</p></section>
+{% endblock %}

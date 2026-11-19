@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block heading %}{{ t('admin.title') }}{% endblock %}
+{% block subhead %}<p class="sub"><a href="{{ url_for('admin.surveys') }}">{{ t('admin.all_surveys') }}</a> · {{ t('admin.domains', domains=domains|join(', ')) }} · {{ t('admin.registration_open' if registration_open else 'admin.registration_closed') }}</p>{% endblock %}
+{% block content %}
+<section class="screen">
+  {% if new_password %}<div class="notice ok" role="status"><p>{{ t('admin.new_password', email=new_password.email) }}</p><p><code>{{ new_password.password }}</code></p></div>{% endif %}
+  <div class="table-wrap"><table>
+    <thead><tr><th>{{ t('auth.email') }}</th><th>{{ t('auth.role') }}</th><th>{{ t('admin.state') }}</th><th>{{ t('admin.created') }}</th><th>{{ t('admin.last_login') }}</th><th>{{ t('admin.surveys') }}</th><th></th></tr></thead>
+    <tbody>{% for u in users %}
+    <tr>
+      <td>{{ u.email }}</td><td>{{ t('role.' ~ u.role) }}</td>
+      <td>{{ t('admin.active' if u.active else 'admin.inactive') }}, {{ t('admin.verified' if u.verified else 'admin.unverified') }}</td>
+      <td>{{ u.created_at.strftime('%Y-%m-%d') }}</td><td>{{ u.last_login_at.strftime('%Y-%m-%d %H:%M') if u.last_login_at else '–' }}</td>
+      <td class="num">{{ survey_counts[u.id] }}</td>
+      <td class="actions"><form method="post" action="{{ url_for('admin.user_action', user_id=u.id) }}" class="inline-forms">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <select name="action">
+          <option value="{{ 'deactivate' if u.active else 'activate' }}">{{ t('admin.do_deactivate' if u.active else 'admin.do_activate') }}</option>
+          <option value="{{ 'researcher' if u.is_admin else 'admin' }}">{{ t('admin.do_researcher' if u.is_admin else 'admin.do_admin') }}</option>
+          {% if not u.verified %}<option value="verify">{{ t('admin.do_verify') }}</option>{% if config.EMAIL_CONFIRMATION %}<option value="resend">{{ t('admin.do_resend') }}</option>{% endif %}{% endif %}
+          <option value="password">{{ t('admin.do_password') }}</option>
+          <option value="delete">{{ t('admin.do_delete') }}</option>
+        </select>
+        <button class="act ghost small" type="submit">{{ t('admin.apply') }}</button>
+      </form></td>
+    </tr>
+    {% endfor %}</tbody>
+  </table></div>
+</section>
+{% endblock %}

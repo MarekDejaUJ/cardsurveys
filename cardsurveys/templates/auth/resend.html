@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf with context %}
+{% block heading %}{{ t('auth.resend_title') }}{% endblock %}
+{% block content %}
+<section class="screen narrow">
+  <form method="post" class="stack">
+    {{ csrf() }}
+    <label class="field">{{ t('auth.email') }}<input type="email" name="email" required autocomplete="email"></label>
+    <div class="controls"><button class="act primary" type="submit">{{ t('auth.resend_button') }}</button></div>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "blocks/_frame.html" %}
+{% from "macros.html" import screen_fields with context %}
+{% block subhead %}{{ super() }}{% if module.instructions and screen.step == 0 %}<div class="sub">{{ md(module.instructions|tx(lang, fallback)) }}</div>{% endif %}{% endblock %}
+{% block content %}
+<div class="progress"><span>{% if module.practice %}{{ t('tap.practice', lang) }}{% else %}{{ t('blocks.block_n', lang, n=screen.step + 1, total=screen.total_steps) }}{% endif %}</span>
+  <div class="pips">{% for i in range(screen.total_steps) %}<span class="pip{% if i < screen.step %} done{% elif i == screen.step %} cur{% endif %}"></span>{% endfor %}</div></div>
+<p class="criterion">{{ criterion|tx(lang, fallback) }}</p>
+{% if panel %}
+<details class="aid-panel" open>
+  <summary>{% if panel_label %}{{ panel_label|tx(lang, fallback) }}{% else %}{{ t('tap.panel_default', lang) }}{% endif %}</summary>
+  {% for text in panel %}<div class="content stimulus">{{ md(text|tx(lang, fallback)) }}</div>{% endfor %}
+</details>
+{% endif %}
+<section id="tapTask" data-cards='{{ cards|tojson }}' data-strings='{{ ui_strings("tap.", lang)|tojson }}'>
+  <div class="tray-label">{{ t('tap.hint', lang) }}</div>
+  <div id="tapArea"></div>
+  <div id="tapSequence" aria-live="polite"></div>
+  <form method="post" id="blockForm" class="screen-form">
+    {{ screen_fields(screen) }}
+    <input type="hidden" name="result_json" id="resultJson">
+    <input type="hidden" name="events_json" id="eventsJson">
+    <input type="hidden" name="block_ms" id="blockMs">
+    {% if module.gate %}
+    <fieldset class="gate">
+      <legend class="qlabel">{{ module.gate.question|tx(lang, fallback) }}</legend>
+      <div class="options inline">{% for o in module.gate.options %}<label><input type="radio" name="gate" value="{{ o.value }}"> {{ o.label|tx(lang, fallback) }}</label>{% endfor %}</div>
+    </fieldset>
+    {% endif %}
+    <div class="controls">
+      <button class="act ghost" type="button" id="undoTap">{{ t('tap.undo', lang) }}</button>
+      <button class="act ghost" type="button" id="resetTap">{{ t('blocks.reset', lang) }}</button>
+      <button class="act primary" type="submit" id="submitBlock" disabled>{{ t('blocks.next', lang) }}</button>
+    </div>
+  </form>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='tap.js') }}"></script>{% endblock %}

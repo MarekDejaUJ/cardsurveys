@@ -1,0 +1,25 @@
+{% macro csrf() %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endmacro %}
+
+{% macro i18n_inputs(name, values, langs, area=False, label='') %}
+<div class="field">
+  {% if label %}<div class="section-label">{{ label }}</div>{% endif %}
+  <div class="langcols" style="--cols: {{ langs|length }}">
+    {% for code in langs %}
+    <label class="field"><span class="langtag">{{ code }}</span>
+      {% if area %}<textarea name="{{ name }}__{{ code }}" rows="5">{{ values.get(name ~ '__' ~ code, '') }}</textarea>
+      {% else %}<input name="{{ name }}__{{ code }}" value="{{ values.get(name ~ '__' ~ code, '') }}">{% endif %}
+    </label>
+    {% endfor %}
+  </div>
+</div>
+{% endmacro %}
+
+{% macro errors_list(keys) %}
+{% if keys %}<ul class="msglist">{% for k in keys %}<li class="error">{{ t(k) }}</li>{% endfor %}</ul>{% endif %}
+{% endmacro %}
+
+{% macro screen_fields(screen) %}
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<input type="hidden" name="screen" value="{{ screen.key }}">
+<input type="hidden" name="client_ms" value="">
+{% endmacro %}

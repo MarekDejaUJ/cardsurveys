@@ -1,0 +1,4 @@
+-r requirements.txt
+pytest==8.4.2
+aiosmtpd==1.4.6
+playwright==1.65.2

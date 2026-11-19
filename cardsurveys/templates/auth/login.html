@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf with context %}
+{% block heading %}{{ t('auth.login_title') }}{% endblock %}
+{% block content %}
+<section class="screen narrow">
+  <form method="post" class="stack">
+    {{ csrf() }}
+    <label class="field">{{ t('auth.email') }}<input type="email" name="email" required autocomplete="username"></label>
+    <label class="field">{{ t('auth.password') }}<input type="password" name="password" required autocomplete="current-password"></label>
+    <div class="controls"><button class="act primary" type="submit">{{ t('auth.login_button') }}</button></div>
+  </form>
+  <p class="muted"><a href="{{ url_for('auth.register') }}">{{ t('auth.register_title') }}</a> · <a href="{{ url_for('auth.forgot') }}">{{ t('auth.forgot_link') }}</a>{% if config.EMAIL_CONFIRMATION %} · <a href="{{ url_for('auth.resend') }}">{{ t('auth.resend_link') }}</a>{% endif %}</p>
+</section>
+{% endblock %}

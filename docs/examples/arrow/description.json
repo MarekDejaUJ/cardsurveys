@@ -1,0 +1,96 @@
+{
+  "format": "cardsurveys-export-1",
+  "software": {
+    "name": "Card Surveys",
+    "version": "1.1.0"
+  },
+  "exported_at": "2026-11-17T14:05:13.990410Z",
+  "survey": {
+    "title": {
+      "en": "Demonstration: arrow board",
+      "pl": "Pokaz: plansza strzałek"
+    },
+    "languages": [
+      "pl",
+      "en"
+    ],
+    "default_language": "pl",
+    "revision": 1,
+    "status": "open"
+  },
+  "files": {
+    "responses.csv": "One row per response: identifier, status (started, submitted, withdrawn, declined), language, times (UTC), survey revision, the arm and stratum of every randomizer, then one column per question and choice (several selected options joined by semicolons).",
+    "answers.csv": "Every stored answer in long form: response, occasion, module, question name, value (JSON text).",
+    "blocks.csv": "One row per block screen: technique (sob or tap), variant, screen position, design block index, repeated block index, attention block and whether it was passed, cards in display order, the response (tap: cards in tapped order; sob: stratum or 'side' per card), gate answer, time on the block in milliseconds, tap events [card or 'undo', milliseconds].",
+    "pairs.csv": "Pair observations of block screens (attention blocks excluded): relation a_prec_b (item_a before item_b), b_prec_a or incomparable.",
+    "screens.csv": "Paradata per screen: first shown and submitted (UTC), time on the page measured in the browser (milliseconds, summed over visits), number of visits.",
+    "allocations.csv": "Every arm assignment: randomizer, stratum, sequence number in the stratum, arm, response (empty after a withdrawal)."
+  },
+  "codebook": {
+    "languages": [
+      "pl",
+      "en"
+    ],
+    "modules": [
+      {
+        "key": "consent",
+        "type": "consent"
+      },
+      {
+        "key": "board",
+        "type": "board",
+        "title": {
+          "en": "Arrow board",
+          "pl": "Plansza strzałek"
+        },
+        "kind": "arrow",
+        "rows": null,
+        "relation": {
+          "en": "one must be settled before the other can be done well",
+          "pl": "jedno musi być ustalone, zanim da się dobrze wykonać drugie"
+        },
+        "elements": [
+          {
+            "code": "RQ",
+            "label": {
+              "en": "research question",
+              "pl": "pytanie badawcze"
+            }
+          },
+          {
+            "code": "LIT",
+            "label": {
+              "en": "literature review",
+              "pl": "przegląd literatury"
+            }
+          },
+          {
+            "code": "METH",
+            "label": {
+              "en": "choice of method",
+              "pl": "wybór metody"
+            }
+          },
+          {
+            "code": "DATA",
+            "label": {
+              "en": "data collection",
+              "pl": "zbieranie danych"
+            }
+          },
+          {
+            "code": "ANAL",
+            "label": {
+              "en": "analysis",
+              "pl": "analiza"
+            }
+          }
+        ]
+      },
+      {
+        "key": "thanks",
+        "type": "thanks"
+      }
+    ]
+  }
+}

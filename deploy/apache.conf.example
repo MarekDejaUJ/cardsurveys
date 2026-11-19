@@ -1,0 +1,17 @@
+# Card Surveys behind Apache (modules proxy, proxy_http, headers).
+# Inside an existing VirtualHost only the Proxy* and RequestHeader lines are needed.
+# The log format leaves out client addresses, in line with the application, which stores none.
+LogFormat "%t \"%r\" %>s %b %D" cardsurveys
+
+<VirtualHost *:80>
+    ServerName @SERVER_NAME@
+    CustomLog @APACHE_LOG@/cardsurveys.access.log cardsurveys
+    LimitRequestBody 5242880
+
+    # the bare address of the host opens the application
+    RedirectMatch 302 ^/$ @PREFIX@/
+    ProxyPreserveHost On
+    ProxyPass        @PREFIX@ http://127.0.0.1:@PORT@@PREFIX@
+    ProxyPassReverse @PREFIX@ http://127.0.0.1:@PORT@@PREFIX@
+    RequestHeader set X-Forwarded-Proto expr=%{REQUEST_SCHEME}
+</VirtualHost>
