@@ -2,6 +2,15 @@
 
 Versions follow Semantic Versioning (<https://semver.org/>): the third number changes with fixes, the second with new features that keep earlier surveys, bundles and exports working, the first with a change that breaks them. The survey bundle format and the export format (`cardsurveys-export-1`) carry their own version, which changes only with an incompatible change. Every export records the version of the system that wrote it, and the page footer shows the version of the installation. Every release is tagged in Git as `cardsurveys-vX.Y.Z`.
 
+## 1.4.0 (2026-11-19)
+
+- Form screens with the respondent's material (`panel_from`, `panel_label`) in a panel above the questions, as in tap-order blocks.
+- Questions in random order (`shuffle_questions`): the named questions change places at random among the positions they hold, once per respondent, and `screens.csv` records the order shown (`question_order`).
+- Paradata of a screen (`paradata`): the browser records the links opened on the screen and how often and how long the page was left, and `screens.csv` gives `leaves`, `away_ms` and `links`. A refused form submission keeps the counts. The privacy page states what is recorded. The database gains four columns of `screen_times` (migration `0002`, applied by `manage.sh init-db`).
+- Web addresses in question labels become links that open in a new tab.
+- The studio editor keeps every setting of a module: the material panel of tap-order blocks, the anchor card that closes the block, the note on the anchor card and the position of the attention card were lost when such a module was saved in the editor.
+- Polish privacy page: "Osoby wypełniające ankietę" in place of "Respondenci".
+
 ## 1.3.0 (2026-11-19)
 
 - Tap-order blocks whose anchor card closes the block (`anchor_closes`): tapping the anchor ends the order of the block, the cards left untapped lie below the anchor, marked "=" and tied with one another, and the anchor is placed after the last card when every other card is tapped. "Undo" reopens the block. The response of such a block ends at the anchor, its untapped pairs are recorded with the relation `tie`, and the tap events record the automatic placement as `auto`. Tasks without the setting keep the full order of every card.

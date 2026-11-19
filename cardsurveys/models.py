@@ -248,6 +248,10 @@ class ScreenTime(db.Model):
     submitted_at = db.Column(db.DateTime, nullable=True)
     client_ms = db.Column(db.Integer, nullable=True)
     visits = db.Column(db.Integer, nullable=False, default=1)
+    question_order_json = db.Column(db.Text, nullable=True)
+    leaves = db.Column(db.Integer, nullable=True)
+    away_ms = db.Column(db.Integer, nullable=True)
+    links_json = db.Column(db.Text, nullable=True)
 
 
 class Allocation(db.Model):

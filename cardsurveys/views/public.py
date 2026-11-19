@@ -153,7 +153,7 @@ def _apply_language(r: Response, survey: Survey) -> str:
     return r.language if r.language in survey.languages else survey.default_language
 
 
-def _render_screen(survey: Survey, r: Response, screen: runtime.Screen, lang: str, errors=None, form_values=None):
+def _render_screen(survey: Survey, r: Response, screen: runtime.Screen, lang: str, errors=None, form_values=None, paradata_prev=None):
     module = screen.module
     t = module["type"]
     ctx = dict(survey=survey, response=r, screen=screen, module=module, lang=lang, fallback=survey.default_language,
@@ -161,8 +161,12 @@ def _render_screen(survey: Survey, r: Response, screen: runtime.Screen, lang: st
     answers = runtime.answers_of(r)
     if t == "form":
         from ..survey import conditions
-        ctx["questions"] = [q for q in module["questions"]
+        by_name = {q["name"]: q for q in module["questions"]}
+        ordered = [by_name[n] for n in runtime.form_order(r, module, screen.occasion)]
+        ctx["questions"] = [q for q in ordered
                             if conditions.holds(q.get("condition"), answers, r.assignments) or _refers_same_form(q, module)]
+        ctx.update(panel=_panel(survey, module, r, answers), panel_label=module.get("panel_label"),
+                   paradata=bool(module.get("paradata")), paradata_prev=paradata_prev or "")
         return render_template("blocks/form.html", **ctx)
     if t == "board":
         codes = [e["code"] for e in module["elements"]]
@@ -188,13 +192,7 @@ def _render_screen(survey: Survey, r: Response, screen: runtime.Screen, lang: st
         cards = [{"code": c, "label": labels.get(c, c), "anchor": bool(module.get("anchor")) and c == module["anchor"]["code"],
                   "attention": c == "ATTN"} for c in entry["cards"]]
         criterion = (variant or {}).get("criterion") or module.get("criterion") or module.get("relation")
-        panel = []
-        by_key = {m["key"]: m for m in survey.modules}
-        for name in module.get("panel_from", []):
-            source = by_key.get(name)
-            text = runtime.content_for(source, r, answers) if source else None
-            if text:
-                panel.append(text)
+        panel = _panel(survey, module, r, answers)
         ctx.update(cards=cards, entry=entry, criterion=criterion, panel=panel,
                    panel_label=module.get("panel_label"), anchor_note=module.get("anchor_note") if module.get("anchor") else None,
                    anchor_closes=bool(module.get("anchor") and module.get("anchor_closes")),
@@ -212,6 +210,18 @@ def _render_screen(survey: Survey, r: Response, screen: runtime.Screen, lang: st
         ctx["content"] = runtime.content_for(module, r, answers)
         return render_template("blocks/debrief.html", **ctx)
     return render_template(f"blocks/{t}.html", **ctx)
+
+
+def _panel(survey, module, r, answers) -> list:
+    """The respondent's material from the modules named in ``panel_from``."""
+    panel = []
+    by_key = {m["key"]: m for m in survey.modules}
+    for name in module.get("panel_from", []):
+        source = by_key.get(name)
+        text = runtime.content_for(source, r, answers) if source else None
+        if text:
+            panel.append(text)
+    return panel
 
 
 def _refers_same_form(q, module) -> bool:
@@ -276,7 +286,8 @@ def respond(uuid: str):
                 db.session.rollback()
                 values = {q["name"]: (request.form.getlist(q["name"]) if q["type"] == "checkbox" else request.form.get(q["name"], ""))
                           for q in module["questions"]}
-                return _render_screen(survey, r, screen, lang, errors=errors, form_values=values), 400
+                return _render_screen(survey, r, screen, lang, errors=errors, form_values=values,
+                                      paradata_prev=request.form.get("paradata_json") if module.get("paradata") else None), 400
             runtime.advance(r)
         elif t == "board" and screen.step == 0:
             needs_confirm = runtime.submit_board(r, module, screen.occasion, request.form.get("placements_json", ""), request.form.get("display_order", ""))
@@ -307,7 +318,10 @@ def respond(uuid: str):
         db.session.rollback()
         flash(i18n.t("flow." + exc.key, lang, **exc.kw), "error")
         return redirect(url_for("public.respond", uuid=uuid))
-    runtime.mark_submitted(r, screen, request.form.get("client_ms"))
+    runtime.mark_submitted(r, screen, request.form.get("client_ms"),
+                           paradata=request.form.get("paradata_json", "") if module.get("paradata") else None,
+                           question_order=(runtime.form_order(r, module, screen.occasion)
+                                           if t == "form" and module.get("shuffle_questions") else None))
     following = runtime.current_screen(survey, r)
     if following is None or following.module["type"] == "thanks":
         runtime.finish(r)

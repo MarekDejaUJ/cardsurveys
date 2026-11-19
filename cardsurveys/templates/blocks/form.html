@@ -3,12 +3,19 @@
 {% block content %}
 <section class="screen narrow">
   {% if module.intro %}<div class="content">{{ md(module.intro|tx(lang, fallback)) }}</div>{% endif %}
-  <form method="post" class="screen-form" novalidate>
+  {% if panel %}
+  <details class="aid-panel" open>
+    <summary>{% if panel_label %}{{ panel_label|tx(lang, fallback) }}{% else %}{{ t('tap.panel_default', lang) }}{% endif %}</summary>
+    {% for text in panel %}<div class="content stimulus">{{ md(text|tx(lang, fallback)) }}</div>{% endfor %}
+  </details>
+  {% endif %}
+  <form method="post" class="screen-form" novalidate{% if paradata %} data-paradata="1"{% endif %}>
     {{ screen_fields(screen) }}
+    {% if paradata %}<input type="hidden" name="paradata_json" value="{{ paradata_prev }}">{% endif %}
     {% for q in questions %}
     {% set v = values.get(q.name, [] if q.type == 'checkbox' else '') %}
     <div class="question{% if errors.get(q.name) %} has-error{% endif %}" {% if q.condition %}data-cond='{{ q.condition|tojson }}'{% endif %}>
-      <label class="qlabel" for="q_{{ q.name }}">{{ q.label|tx(lang, fallback) }}{% if q.required %} <span aria-hidden="true">*</span>{% endif %}</label>
+      <label class="qlabel" for="q_{{ q.name }}">{{ inline(q.label|tx(lang, fallback)) }}{% if q.required %} <span aria-hidden="true">*</span>{% endif %}</label>
       {% if q.help %}<p class="help">{{ q.help|tx(lang, fallback) }}</p>{% endif %}
       {% if q.type == 'text' %}<input id="q_{{ q.name }}" name="{{ q.name }}" value="{{ v }}" maxlength="500">
       {% elif q.type == 'textarea' %}<textarea id="q_{{ q.name }}" name="{{ q.name }}" maxlength="5000">{{ v }}</textarea>

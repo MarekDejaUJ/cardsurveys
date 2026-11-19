@@ -13,7 +13,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from .config import load_config
 from .extensions import csrf, db, migrate
 
-__version__ = "1.3.0"
+__version__ = "1.4.0"
 
 
 def create_app(overrides: dict | None = None) -> Flask:

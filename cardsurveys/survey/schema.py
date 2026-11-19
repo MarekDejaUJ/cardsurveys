@@ -63,7 +63,9 @@ _VARIANT = {
 MODULE_SCHEMAS = {
     "consent": _module({"text": _I18N, "agree_label": _I18N, "decline_label": _I18N}, ["text"]),
     "info": _module({"text": _I18N}, ["text"]),
-    "form": _module({"intro": _I18N, "questions": {"type": "array", "items": _QUESTION, "minItems": 1}}, ["questions"]),
+    "form": _module({"intro": _I18N, "questions": {"type": "array", "items": _QUESTION, "minItems": 1},
+                     "panel_from": {"type": "array", "items": _KEY, "maxItems": 4}, "panel_label": _I18N,
+                     "shuffle_questions": {"type": "array", "items": _KEY}, "paradata": {"type": "boolean"}}, ["questions"]),
     "board": _module({
         "instructions": _I18N, "relation": _I18N, "kind": {"enum": list(BOARD_KINDS)},
         "rows": {"type": "integer", "minimum": 2, "maximum": 8},
@@ -155,7 +157,7 @@ def _texts(module: dict[str, Any]) -> list[tuple[str, Any]]:
     out: list[tuple[str, Any]] = []
     t = module.get("type")
     for field in ("title", "text", "agree_label", "decline_label", "intro", "instructions", "relation",
-                  "criterion", "side_label", "attention_label", "anchor_note", "prompt"):
+                  "criterion", "side_label", "attention_label", "anchor_note", "panel_label", "prompt"):
         if field in module and module[field]:
             out.append((field, module[field]))
     for i, q in enumerate(module.get("questions", []) or []):
@@ -285,6 +287,13 @@ def validate_bundle(bundle: Any, registry_languages: list[str] | None = None) ->
             _check_condition(module["condition"], answers, set(randomizers), where, errors)
 
         if mtype == "form":
+            for name in module.get("panel_from", []):
+                if name not in content_modules:
+                    errors.append(_msg("panel_unknown_module", where=where, name=name))
+            names = {q["name"] for q in module["questions"]}
+            for name in module.get("shuffle_questions", []):
+                if name not in names:
+                    errors.append(_msg("shuffle_unknown_question", where=where, name=name))
             for q in module["questions"]:
                 if q["name"] in answers:
                     errors.append(_msg("duplicate_answer_name", where=where, name=q["name"]))

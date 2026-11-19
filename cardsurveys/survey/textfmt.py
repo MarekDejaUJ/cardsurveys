@@ -24,6 +24,11 @@ def _inline(text: str) -> str:
     return s
 
 
+def inline(text: str | None) -> Markup:
+    """One line of light markup (bold, italics, links), escaped otherwise."""
+    return Markup(_inline(text or ""))
+
+
 def render(text: str | None) -> Markup:
     if not text:
         return Markup("")

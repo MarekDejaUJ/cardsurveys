@@ -48,6 +48,7 @@ def init_app(app):
             "current_user": current_user(),
             "lang_url": lang_url,
             "md": textfmt.render,
+            "inline": textfmt.inline,
             "msg": message_text,
             "public_url": public_url,
             "app_prefix": app.config["URL_PREFIX"],

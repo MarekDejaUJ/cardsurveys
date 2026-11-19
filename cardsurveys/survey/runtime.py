@@ -116,6 +116,25 @@ def schedule_for(response: Response, module: dict[str, Any], occasion: int, answ
     return entries
 
 
+def form_order(response: Response, module: dict[str, Any], occasion: int) -> list[str]:
+    """The order of the questions of a form for one respondent: the questions named in
+    ``shuffle_questions`` change places at random among the positions they hold."""
+    names = [q["name"] for q in module["questions"]]
+    group = [n for n in module.get("shuffle_questions", []) if n in names]
+    if not group:
+        return names
+    state = response.state
+    key = f"{module['key']}@{occasion}"
+    orders = state.setdefault("form_orders", {})
+    if key not in orders:
+        shuffled = list(group)
+        _rng(response, key).shuffle(shuffled)
+        it = iter(shuffled)
+        orders[key] = [next(it) if n in group else n for n in names]
+        response.state = state
+    return orders[key]
+
+
 def board_order(response: Response, module: dict[str, Any], occasion: int) -> list[int]:
     state = response.state
     key = f"{module['key']}@{occasion}"
@@ -268,6 +287,8 @@ def start_retest(survey, response: Response) -> bool:
 
 
 def mark_shown(response: Response, screen: Screen) -> None:
+    if screen.module["type"] == "form" and screen.module.get("shuffle_questions"):
+        form_order(response, screen.module, screen.occasion)  # fixed before the page is rendered
     row = ScreenTime.query.filter_by(response_id=response.id, screen_key=screen.key).first()
     if row is None:
         db.session.add(ScreenTime(response_id=response.id, screen_key=screen.key, module_key=screen.module["key"], occasion=screen.occasion))
@@ -275,7 +296,8 @@ def mark_shown(response: Response, screen: Screen) -> None:
         row.visits += 1
 
 
-def mark_submitted(response: Response, screen: Screen, client_ms: Any) -> None:
+def mark_submitted(response: Response, screen: Screen, client_ms: Any, paradata: str | None = None,
+                   question_order: list[str] | None = None) -> None:
     row = ScreenTime.query.filter_by(response_id=response.id, screen_key=screen.key).first()
     if row is None:
         row = ScreenTime(response_id=response.id, screen_key=screen.key, module_key=screen.module["key"], occasion=screen.occasion)
@@ -287,6 +309,37 @@ def mark_submitted(response: Response, screen: Screen, client_ms: Any) -> None:
             row.client_ms = (row.client_ms or 0) + ms
     except (TypeError, ValueError):
         pass
+    if question_order is not None:
+        row.question_order_json = json.dumps(question_order)
+    if paradata is not None:
+        leaves, away, links = read_paradata(paradata)
+        row.leaves = (row.leaves or 0) + leaves
+        row.away_ms = (row.away_ms or 0) + away
+        row.links_json = json.dumps((json.loads(row.links_json) if row.links_json else []) + links)
+
+
+def read_paradata(text: str | None) -> tuple[int, int, list[list[Any]]]:
+    """Leaves of the page, time away in milliseconds and opened links [address, ms] sent by
+    the browser for a screen with ``paradata``; malformed parts count as nothing."""
+    try:
+        data = json.loads(text or "{}")
+    except json.JSONDecodeError:
+        data = {}
+    if not isinstance(data, dict):
+        data = {}
+
+    def bounded(value: Any, top: int) -> int:
+        try:
+            v = int(float(value))
+        except (TypeError, ValueError):
+            return 0
+        return v if 0 <= v <= top else 0
+
+    links = []
+    for item in data.get("links", []) if isinstance(data.get("links"), list) else []:
+        if isinstance(item, list) and len(item) == 2 and isinstance(item[0], str):
+            links.append([item[0][:500], bounded(item[1], 24 * 3600 * 1000)])
+    return bounded(data.get("leaves"), 10000), bounded(data.get("away_ms"), 24 * 3600 * 1000), links[:200]
 
 
 # ---------------------------------------------------------------- submissions

@@ -4,6 +4,7 @@ Run with: python -m pytest -m browser
 """
 from __future__ import annotations
 
+import json
 import socket
 import threading
 from pathlib import Path
@@ -55,6 +56,10 @@ def server(tmp_path_factory):
         s = bundles.create_from_bundle(u, closing, ["pl", "en"])
         s.status = "open"
         slugs["tap_closing"] = s.slug
+        from .test_forms_paradata import checking_bundle
+        s = bundles.create_from_bundle(u, checking_bundle(), ["pl", "en"])
+        s.status = "open"
+        slugs["checking"] = s.slug
         db.session.commit()
     port = _free_port()
     srv = make_server("127.0.0.1", port, app, threaded=True)
@@ -247,3 +252,28 @@ def test_board_survey_with_confirmation(server, page):
         radios.nth(i).check()
     page.click("button[type=submit]")
     assert "Thank you" in page.inner_text("body")
+
+
+def test_opened_links_on_a_screen_with_paradata_are_recorded(server, page):
+    from cardsurveys.models import ScreenTime
+
+    page.goto(server["base"] + f"/s/{server['slugs']['checking']}?lang=en")
+    page.click("button[value='agree']")
+    page.wait_for_selector("text=Read.")
+    with page.expect_navigation():
+        page.click("button[type=submit]")
+    page.wait_for_selector("details.aid-panel")
+    page.context.route("https://doi.org/**", lambda route: route.fulfill(status=200, body="record"))
+    with page.expect_popup() as popup:
+        page.click("a[href='https://doi.org/10.0000/k2']")
+    popup.value.close()
+    page.bring_to_front()
+    for name in ("K1", "K2", "K3", "K4", "K5"):
+        page.check(f"input[name={name}][value=none]")
+    page.check("input[name=checked][value=yes]")
+    with page.expect_navigation():
+        page.click("button[type=submit]")
+    with server["app"].app_context():
+        rows = ScreenTime.query.filter_by(module_key="judge").all()
+        links = [json.loads(r.links_json or "[]") for r in rows]
+    assert any(any(link[0] == "https://doi.org/10.0000/k2" for link in found) for found in links)

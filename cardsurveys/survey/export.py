@@ -119,7 +119,7 @@ FILE_NOTES = {
     "answers.csv": "Every stored answer in long form: response, occasion, module, question name, value (JSON text).",
     "blocks.csv": "One row per block screen: technique (sob or tap), variant, screen position, design block index, repeated block index, attention block and whether it was passed, cards in display order, the response (tap: cards in tapped order, ending at the anchor when the anchor closes the block, the missing cards tied below the anchor; sob: stratum or 'side' per card), gate answer, time on the block in milliseconds, tap events [card, 'undo', 'reset' or 'auto' (anchor placed after the last card), milliseconds].",
     "pairs.csv": "Pair observations of block screens (attention blocks excluded): relation a_prec_b (item_a before item_b), b_prec_a, incomparable, or tie (both left untapped below an anchor that closed the block).",
-    "screens.csv": "Paradata per screen: first shown and submitted (UTC), time on the page measured in the browser (milliseconds, summed over visits), number of visits.",
+    "screens.csv": "Paradata per screen: first shown and submitted (UTC), time on the page measured in the browser (milliseconds, summed over visits), number of visits; for a form with questions in random order, the order shown; for a screen with paradata, the number of times the page was left, the time away from the page (milliseconds) and the links opened [address, milliseconds].",
     "allocations.csv": "Every arm assignment: randomizer, stratum, sequence number in the stratum, arm, response (empty after a withdrawal).",
 }
 
@@ -206,8 +206,10 @@ def export_files(survey) -> dict[str, str]:
     rows = []
     if ids:
         for s in ScreenTime.query.filter(ScreenTime.response_id.in_(ids)).order_by(ScreenTime.response_id, ScreenTime.id).all():
-            rows.append([uuid[s.response_id], s.occasion, s.module_key, s.screen_key, _iso(s.first_shown_at), _iso(s.submitted_at), s.client_ms, s.visits])
-    files["screens.csv"] = _csv(["response_uuid", "occasion", "module_key", "screen_key", "first_shown_at", "submitted_at", "client_ms", "visits"], rows)
+            rows.append([uuid[s.response_id], s.occasion, s.module_key, s.screen_key, _iso(s.first_shown_at), _iso(s.submitted_at), s.client_ms, s.visits,
+                         "|".join(json.loads(s.question_order_json)) if s.question_order_json else "", s.leaves, s.away_ms, s.links_json or ""])
+    files["screens.csv"] = _csv(["response_uuid", "occasion", "module_key", "screen_key", "first_shown_at", "submitted_at", "client_ms", "visits",
+                                 "question_order", "leaves", "away_ms", "links"], rows)
 
     rows = []
     for al in Allocation.query.filter_by(survey_id=survey.id, preview=False).order_by(Allocation.randomizer_key, Allocation.stratum, Allocation.seq_no).all():

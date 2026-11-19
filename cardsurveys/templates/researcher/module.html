@@ -24,7 +24,7 @@
         <label class="field">{{ t('field_label.design') }}<span class="muted">{{ t('field_hint.design') }}</span>
           <select name="design"><option value="">{{ t('editor.no_design') }}</option>{% for d in designs %}<option value="{{ d.key }}" {% if values.get('design') == d.key %}selected{% endif %}>v={{ d.v }}, k={{ d.k }}, λ={{ d['lambda'] }}, r={{ d.r }}, b={{ d.b }}</option>{% endfor %}</select></label>
       {% elif kind == 'select' %}
-        <label class="field">{{ t('field_label.' ~ name) }}<select name="{{ name }}">{% for opt in extra %}<option value="{{ opt }}" {% if values.get(name) == opt %}selected{% endif %}>{{ t('demo.board_' ~ opt) }}</option>{% endfor %}</select></label>
+        <label class="field">{{ t('field_label.' ~ name) }}<select name="{{ name }}">{% for opt in extra %}{% set okey = 'field_option.' ~ name ~ '.' ~ opt %}<option value="{{ opt }}" {% if values.get(name) == opt %}selected{% endif %}>{{ t(okey) if t(okey) != okey else t('demo.board_' ~ opt) }}</option>{% endfor %}</select></label>
       {% elif kind == 'bool' %}
         <label class="check"><input type="checkbox" name="{{ name }}" {% if values.get(name) %}checked{% endif %}> {{ t('field_label.' ~ name) }}</label>
       {% elif kind == 'json' %}

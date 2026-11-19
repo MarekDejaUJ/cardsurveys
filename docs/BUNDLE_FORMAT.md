@@ -35,7 +35,7 @@ Every text a respondent sees is a translation object, a map from language code t
 
 **info**: `text`.
 
-**form**: `intro` (optional) and `questions`, each with `name` (unique in the survey), `type` (`text`, `textarea`, `number`, `select`, `radio`, `checkbox`, `yesno`), `label`, optional `help`, `required`, `options` (`[{"value": "...", "label": {...}}]` for `select`, `radio`, `checkbox`), `min` and `max` for numbers, and `condition`.
+**form**: `intro` (optional) and `questions`, each with `name` (unique in the survey), `type` (`text`, `textarea`, `number`, `select`, `radio`, `checkbox`, `yesno`), `label`, optional `help`, `required`, `options` (`[{"value": "...", "label": {...}}]` for `select`, `radio`, `checkbox`), `min` and `max` for numbers, and `condition`. A web address in a question label becomes a link that opens in a new tab. Optionally: `panel_from` and `panel_label` (the respondent's material from earlier stimulus and choice modules in a panel above the questions, as in tap-order blocks), `shuffle_questions` (names of questions that change places at random among the positions they hold, once per respondent; the order shown is recorded) and `paradata` (`true`: on this screen the browser records the links opened and how often and how long the page was left).
 
 **board**: `relation` (a full clause, for example "one must be settled before the other"), `kind` (`tier`, `tier_aside`, `arrow`, `pile`, `plane`, `pairs`), `rows` (tier boards), `elements` (2 to 8 cards `{"code", "label"}`), `confirm_critical` (arrow board: ask whether blank pairs are unrelated), `randomize_order`, optional `instructions`.
 
