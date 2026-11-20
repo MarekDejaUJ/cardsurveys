@@ -1,4 +1,5 @@
-/* Tap-order blocks: tap the cards of a block in order (first tap first). An
+/* Tap-order blocks: tap the cards of a block in order (first tap first). A block
+   opened again with the Back button shows the order given before (data-initial). An
    anchor card, when the task has one, is ordered like any other card. When the
    anchor closes the block (data-closes="1"), tapping the anchor ends the order:
    the cards left untapped lie below the anchor, tied with one another, and the
@@ -22,6 +23,14 @@
   let autoAnchor = false;
   const events = [];
   const demo = root.dataset.mode === "demo";
+  try {
+    const initial = JSON.parse(root.dataset.initial || "null");
+    if(Array.isArray(initial) && initial.length && initial.every(code => cards.some(c => c.code === code))){
+      sequence = initial.slice();
+      autoAnchor = closes && sequence[sequence.length - 1] === anchor && cards.every(c => sequence.indexOf(c.code) >= 0);
+      events.push(["restored", 0]);
+    }
+  } catch(e) {}
 
   function tr(key, vars){ let s = S[key] || key; if(vars) for(const v in vars) s = s.split("{" + v + "}").join(vars[v]); return s; }
   function esc(v){ return String(v).replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch])); }

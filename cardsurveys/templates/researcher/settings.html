@@ -18,6 +18,7 @@
       <label class="check"><input type="checkbox" name="detect_browser_language" {% if s.get('detect_browser_language', True) %}checked{% endif %}> {{ t('studio.detect_language') }}</label>
       <label class="check"><input type="checkbox" name="allow_language_switch" {% if s.get('allow_language_switch', True) %}checked{% endif %}> {{ t('studio.allow_switch') }}</label>
       <label class="check"><input type="checkbox" name="retest" {% if s.get('retest') %}checked{% endif %}> {{ t('studio.retest') }}</label>
+      <label class="check"><input type="checkbox" name="allow_back" {% if s.get('allow_back') %}checked{% endif %}> {{ t('studio.allow_back') }}</label>
     </div>
     <div class="controls"><button class="act primary" type="submit">{{ t('studio.save') }}</button><a class="act ghost" href="{{ url_for('researcher.survey_page', survey_id=survey.id) }}">{{ t('studio.back') }}</a></div>
   </form>

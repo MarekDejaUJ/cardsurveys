@@ -92,6 +92,8 @@ def codebook(survey) -> dict[str, Any]:
                           "elements": [{"code": e["code"], "label": e["label"]} for e in m["elements"]]})
         elif m["type"] in ("sob_blocks", "tap_blocks"):
             entry["criterion" if m["type"] == "tap_blocks" else "relation"] = m.get("criterion") or m.get("relation")
+            if m.get("criteria"):
+                entry["criteria"] = m["criteria"]
             if m.get("anchor"):
                 entry["anchor"] = m["anchor"]
             if m.get("gate"):
@@ -117,9 +119,9 @@ def codebook(survey) -> dict[str, Any]:
 FILE_NOTES = {
     "responses.csv": "One row per response: identifier, status (started, submitted, withdrawn, declined), language, times (UTC), survey revision, the arm and stratum of every randomizer, then one column per question and choice (several selected options joined by semicolons).",
     "answers.csv": "Every stored answer in long form: response, occasion, module, question name, value (JSON text).",
-    "blocks.csv": "One row per block screen: technique (sob or tap), variant, screen position, design block index, repeated block index, attention block and whether it was passed, cards in display order, the response (tap: cards in tapped order, ending at the anchor when the anchor closes the block, the missing cards tied below the anchor; sob: stratum or 'side' per card), gate answer, time on the block in milliseconds, tap events [card, 'undo', 'reset' or 'auto' (anchor placed after the last card), milliseconds].",
+    "blocks.csv": "One row per block screen: technique (sob or tap), variant, screen position, design block index, criterion shown (index into the task's criteria, empty when the task has one criterion), repeated block index, attention block and whether it was passed, cards in display order, the response (tap: cards in tapped order, ending at the anchor when the anchor closes the block, the missing cards tied below the anchor; sob: stratum or 'side' per card), gate answer, time on the block in milliseconds, tap events [card, 'undo', 'reset' or 'auto' (anchor placed after the last card), milliseconds].",
     "pairs.csv": "Pair observations of block screens (attention blocks excluded): relation a_prec_b (item_a before item_b), b_prec_a, incomparable, or tie (both left untapped below an anchor that closed the block).",
-    "screens.csv": "Paradata per screen: first shown and submitted (UTC), time on the page measured in the browser (milliseconds, summed over visits), number of visits; for a form with questions in random order, the order shown; for a screen with paradata, the number of times the page was left, the time away from the page (milliseconds) and the links opened [address, milliseconds].",
+    "screens.csv": "Paradata per screen: first shown and submitted (UTC), time on the page measured in the browser (milliseconds, summed over visits), number of visits, number of submissions after the first (answers changed with the Back button); for a form with questions in random order, the order shown; for a screen with paradata, the number of times the page was left, the time away from the page (milliseconds) and the links opened [address, milliseconds].",
     "allocations.csv": "Every arm assignment: randomizer, stratum, sequence number in the stratum, arm, response (empty after a withdrawal).",
 }
 
@@ -188,10 +190,10 @@ def export_files(survey) -> dict[str, str]:
     if ids:
         for b in BlockResponse.query.filter(BlockResponse.response_id.in_(ids)).order_by(BlockResponse.response_id, BlockResponse.module_key, BlockResponse.occasion, BlockResponse.position).all():
             rows.append([uuid[b.response_id], b.occasion, b.module_key, b.technique, b.variant, b.position, b.design_block,
-                         b.repeat_of, int(b.attention), "" if b.attention_passed is None else int(b.attention_passed),
+                         "" if b.criterion is None else b.criterion, b.repeat_of, int(b.attention), "" if b.attention_passed is None else int(b.attention_passed),
                          "|".join(json.loads(b.cards_json)), b.result_json, b.gate_value, b.duration_ms, b.events_json])
     files["blocks.csv"] = _csv(["response_uuid", "occasion", "module_key", "technique", "variant", "position", "design_block",
-                                "repeat_of", "attention", "attention_passed", "cards", "result", "gate_value", "duration_ms", "events"], rows)
+                                "criterion", "repeat_of", "attention", "attention_passed", "cards", "result", "gate_value", "duration_ms", "events"], rows)
 
     rows = []
     variant_of = {}
@@ -206,9 +208,9 @@ def export_files(survey) -> dict[str, str]:
     rows = []
     if ids:
         for s in ScreenTime.query.filter(ScreenTime.response_id.in_(ids)).order_by(ScreenTime.response_id, ScreenTime.id).all():
-            rows.append([uuid[s.response_id], s.occasion, s.module_key, s.screen_key, _iso(s.first_shown_at), _iso(s.submitted_at), s.client_ms, s.visits,
+            rows.append([uuid[s.response_id], s.occasion, s.module_key, s.screen_key, _iso(s.first_shown_at), _iso(s.submitted_at), s.client_ms, s.visits, s.revisions or 0,
                          "|".join(json.loads(s.question_order_json)) if s.question_order_json else "", s.leaves, s.away_ms, s.links_json or ""])
-    files["screens.csv"] = _csv(["response_uuid", "occasion", "module_key", "screen_key", "first_shown_at", "submitted_at", "client_ms", "visits",
+    files["screens.csv"] = _csv(["response_uuid", "occasion", "module_key", "screen_key", "first_shown_at", "submitted_at", "client_ms", "visits", "revisions",
                                  "question_order", "leaves", "away_ms", "links"], rows)
 
     rows = []

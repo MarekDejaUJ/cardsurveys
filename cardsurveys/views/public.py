@@ -157,12 +157,16 @@ def _render_screen(survey: Survey, r: Response, screen: runtime.Screen, lang: st
     module = screen.module
     t = module["type"]
     ctx = dict(survey=survey, response=r, screen=screen, module=module, lang=lang, fallback=survey.default_language,
-               progress=runtime.progress(survey, r), errors=errors or {}, values=form_values or {})
+               progress=runtime.progress(survey, r), errors=errors or {}, values=form_values or {},
+               can_back=runtime.can_go_back(survey, r) and t not in ("consent", "debrief"))
     answers = runtime.answers_of(r)
     if t == "form":
         from ..survey import conditions
         by_name = {q["name"]: q for q in module["questions"]}
         ordered = [by_name[n] for n in runtime.form_order(r, module, screen.occasion)]
+        if form_values is None:
+            stored_answers = runtime.answers_of(r, screen.occasion)
+            ctx["values"] = {q["name"]: stored_answers[q["name"]] for q in module["questions"] if q["name"] in stored_answers}
         ctx["questions"] = [q for q in ordered
                             if conditions.holds(q.get("condition"), answers, r.assignments) or _refers_same_form(q, module)]
         ctx.update(panel=_panel(survey, module, r, answers), panel_label=module.get("panel_label"),
@@ -192,8 +196,15 @@ def _render_screen(survey: Survey, r: Response, screen: runtime.Screen, lang: st
         cards = [{"code": c, "label": labels.get(c, c), "anchor": bool(module.get("anchor")) and c == module["anchor"]["code"],
                   "attention": c == "ATTN"} for c in entry["cards"]]
         criterion = (variant or {}).get("criterion") or module.get("criterion") or module.get("relation")
+        criteria = module.get("criteria") or []
+        if isinstance(entry.get("criterion"), int) and 0 <= entry["criterion"] < len(criteria):
+            criterion = criteria[entry["criterion"]]
+        from ..models import BlockResponse
+        stored = BlockResponse.query.filter_by(response_id=r.id, module_key=module["key"], occasion=screen.occasion,
+                                               position=screen.step).first()
+        initial = json.loads(stored.result_json) if stored and json.loads(stored.cards_json) == entry["cards"] else None
         panel = _panel(survey, module, r, answers)
-        ctx.update(cards=cards, entry=entry, criterion=criterion, panel=panel,
+        ctx.update(cards=cards, entry=entry, criterion=criterion, panel=panel, initial=initial,
                    panel_label=module.get("panel_label"), anchor_note=module.get("anchor_note") if module.get("anchor") else None,
                    anchor_closes=bool(module.get("anchor") and module.get("anchor_closes")),
                    attention_position=module.get("attention_position", "last"))
@@ -322,9 +333,25 @@ def respond(uuid: str):
                            paradata=request.form.get("paradata_json", "") if module.get("paradata") else None,
                            question_order=(runtime.form_order(r, module, screen.occasion)
                                            if t == "form" and module.get("shuffle_questions") else None))
+    runtime.note_step(survey, r, screen)
     following = runtime.current_screen(survey, r)
     if following is None or following.module["type"] == "thanks":
         runtime.finish(r)
+    db.session.commit()
+    return redirect(url_for("public.respond", uuid=uuid))
+
+
+@bp.route("/r/<uuid>/back", methods=("POST",))
+def back(uuid: str):
+    """The Back button: return to the screen submitted before the one shown, when the survey allows it."""
+    r, survey = _load(uuid)
+    occasion = int(r.state.get("occasion", 1))
+    open_ = survey.status == "open" or r.preview
+    active = r.status == "started" or (r.status == "submitted" and occasion == 2 and r.retest_submitted_at is None)
+    if open_ and active:
+        screen = runtime.current_screen(survey, r)
+        if screen is not None and request.form.get("screen") == screen.key and screen.module["type"] not in ("consent", "debrief"):
+            runtime.go_back(survey, r)
     db.session.commit()
     return redirect(url_for("public.respond", uuid=uuid))
 

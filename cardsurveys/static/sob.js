@@ -90,5 +90,6 @@
     eventsField.value = JSON.stringify(events);
     msField.value = String(now());
   });
+  if(root.dataset.initial){ try { const p0 = JSON.parse(root.dataset.initial); if(p0 && typeof p0 === "object" && !Array.isArray(p0)){ placements = p0; events.push(["restored", "", 0]); } } catch(e) {} }
   render();
 })();

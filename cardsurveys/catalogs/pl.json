@@ -21,7 +21,7 @@
   "privacy.title": "Prywatność",
   "privacy.p1": "Osoby wypełniające ankietę odpowiadają bez zakładania konta. Każda odpowiedź dostaje losowy identyfikator. System nie zapisuje adresu sieciowego ani opisu przeglądarki.",
   "privacy.p2": "Osoba wypełniająca ankietę może w każdej chwili wycofać się z udziału. Wycofanie usuwa wszystkie odpowiedzi i układy; zostaje jedynie informacja, że odpowiedź wycofano.",
-  "privacy.p3": "System zapisuje, jak długo był otwarty każdy ekran, aby osoby prowadzące badanie mogły ocenić, ile czasu zajmuje ankieta. Na ekranach, na których osoba prowadząca badanie to włączy, system zapisuje też, które odnośniki z ekranu otwarto oraz ile razy i jak długo strona była opuszczana; nie zapisuje niczego o innych stronach. Zapisy te nie są powiązane z niczyją tożsamością.",
+  "privacy.p3": "System zapisuje, jak długo był otwarty każdy ekran, aby osoby prowadzące badanie mogły ocenić, ile czasu zajmuje ankieta. Na ekranach, na których osoba prowadząca badanie to włączy, system zapisuje też, które odnośniki z ekranu otwarto oraz ile razy i jak długo strona była opuszczana; nie zapisuje niczego o innych stronach. Gdy ankieta pozwala wracać do wcześniejszych ekranów, system liczy, ile razy zmieniono odpowiedzi na danym ekranie. Zapisy te nie są powiązane z niczyją tożsamością.",
   "privacy.p4": "Konta osób prowadzących badania przechowują adres e-mail i skrót hasła. Cel badania, podstawę prawną i okres przechowywania danych podaje w tekście zgody osoba odpowiedzialna za ankietę.",
   "error.home": "Przejdź na stronę główną",
   "error.400.title": "Nieprawidłowe żądanie",
@@ -532,5 +532,11 @@
   "msg.condition_unknown_answer": "{where}: warunek korzysta z odpowiedzi {name}, o którą nie pyta żadne wcześniejsze pytanie.",
   "msg.condition_unknown_randomizer": "{where}: warunek korzysta z {name}, a to nie jest wcześniejszy przydział losowy.",
   "tap.panel_default": "Twój materiał do tego zadania",
-  "msg.panel_unknown_module": "{where}: panel_from wskazuje {name}, a to nie jest wcześniejszy moduł z materiałem ani moduł wyboru."
+  "msg.panel_unknown_module": "{where}: panel_from wskazuje {name}, a to nie jest wcześniejszy moduł z materiałem ani moduł wyboru.",
+  "survey.back": "Wstecz",
+  "survey.progress": "Postęp: {pct}%",
+  "field_label.criteria": "Kryteria rozłożone na bloki (jedno w wierszu; każde pokazywane równie często, na blokach losowanych dla każdej osoby)",
+  "field_label.lock": "Bez powrotu do wcześniejszych ekranów po zatwierdzeniu tego modułu",
+  "field_hint.i18n_list": "Jedno w wierszu: {langs}",
+  "studio.allow_back": "Przycisk „Wstecz”: można wrócić do wcześniejszych ekranów; powrót zamykają zgoda, losowanie, materiał i moduł oznaczony jako zamykający powrót"
 }

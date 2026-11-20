@@ -27,6 +27,7 @@ SPECS: dict[str, list[tuple[str, str, Any]]] = {
                    ("items", "cards", None), ("design", "design", None), ("blocks", "blocks", None), ("side_label", "i18n_line", None),
                    ("shuffle_blocks", "bool", True), ("shuffle_cards", "bool", True)],
     "tap_blocks": [("title", "i18n_line", None), ("instructions", "i18n_area", None), ("criterion", "i18n_area", None),
+                   ("criteria", "i18n_list", None),
                    ("items", "cards", None), ("design", "design", None), ("blocks", "blocks", None),
                    ("anchor", "card", None), ("anchor_closes", "bool", False), ("anchor_note", "i18n_area", None),
                    ("gate", "gate", None), ("duplicates", "int", None), ("attention", "int", None),
@@ -43,7 +44,7 @@ SPECS: dict[str, list[tuple[str, str, Any]]] = {
                 ("texts", "stratum_texts", None), ("offer_withdrawal", "bool", True)],
     "thanks": [("title", "i18n_line", None), ("text", "i18n_area", None), ("show_retest_link", "bool", True)],
 }
-COMMON = [("condition", "json", None), ("retest", "bool", False)]
+COMMON = [("condition", "json", None), ("retest", "bool", False), ("lock", "bool", False)]
 
 
 class EditorError(ValueError):
@@ -130,6 +131,8 @@ def to_form(module: dict[str, Any], languages: list[str]) -> dict[str, Any]:
             values[name] = cards_to_text(v or [], languages)
         elif kind == "blocks":
             values[name] = blocks_to_text(v)
+        elif kind == "i18n_list":
+            values[name] = "\n".join(" | ".join((c or {}).get(code, "") for code in languages) for c in v or [])
         elif kind == "tiers":
             values[name] = blocks_to_text(v)
         elif kind == "card":
@@ -173,6 +176,13 @@ def from_form(module: dict[str, Any], form: Any, languages: list[str]) -> dict[s
             v = blocks_from_text(form.get(name, ""))
             if v:
                 out[name] = v
+        elif kind == "i18n_list":
+            rows = []
+            for line in _lines(form.get(name, "")):
+                cols = _cols(line)
+                rows.append({code: cols[i] for i, code in enumerate(languages) if i < len(cols) and cols[i]})
+            if rows:
+                out[name] = rows
         elif kind == "tiers":
             v = blocks_from_text(form.get(name, ""))
             if v:

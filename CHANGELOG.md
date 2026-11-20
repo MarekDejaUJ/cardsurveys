@@ -2,6 +2,14 @@
 
 Versions follow Semantic Versioning (<https://semver.org/>): the third number changes with fixes, the second with new features that keep earlier surveys, bundles and exports working, the first with a change that breaks them. The survey bundle format and the export format (`cardsurveys-export-1`) carry their own version, which changes only with an incompatible change. Every export records the version of the system that wrote it, and the page footer shows the version of the installation. Every release is tagged in Git as `cardsurveys-vX.Y.Z`.
 
+## 1.5.0 (2026-11-20)
+
+- A Back button (`allow_back` in the survey settings): the respondent returns to the screen submitted before, sees the answers given (filled-in forms, the taps of a block, the placements of a board or SOB block) and may change them. The way back closes behind the consent, a random assignment, a material, a choice of material, the debriefing and every module marked with `lock`. `screens.csv` counts the submissions after the first (`revisions`).
+- Criteria spread over the blocks of a tap-order task (`criteria`): every criterion is shown on equally many blocks, on blocks drawn at random for every respondent, and `blocks.csv` records the criterion of every screen (`criterion`).
+- The progress bar carries its percentage ("Progress: 14%").
+- The studio editor edits the list of criteria, the lock of a module and the Back button of the survey. The privacy page states that answers changed with the Back button are counted.
+- The database gains a column of `block_responses` and a column of `screen_times` (migration `0003`, applied by `manage.sh init-db`).
+
 ## 1.4.0 (2026-11-19)
 
 - Form screens with the respondent's material (`panel_from`, `panel_label`) in a panel above the questions, as in tap-order blocks.

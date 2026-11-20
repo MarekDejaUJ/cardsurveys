@@ -23,3 +23,5 @@
 <input type="hidden" name="screen" value="{{ screen.key }}">
 <input type="hidden" name="client_ms" value="">
 {% endmacro %}
+
+{% macro back_button() %}{% if can_back %}<button class="act ghost" type="submit" form="backForm">{{ t('survey.back', lang) }}</button>{% endif %}{% endmacro %}

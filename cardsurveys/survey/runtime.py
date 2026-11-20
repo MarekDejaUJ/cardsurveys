@@ -110,10 +110,33 @@ def schedule_for(response: Response, module: dict[str, Any], occasion: int, answ
             attention_code="ATTN", anchor_code=anchor)
     for e in entries:
         e["variant"] = name
+    if module["type"] == "tap_blocks" and module.get("criteria") and entries:
+        _assign_criteria(entries, len(module["criteria"]), _rng(response, sk + "|criteria"))
     sched[sk] = entries
     state.setdefault("variants", {})[module["key"]] = name
     response.state = state
     return entries
+
+
+def _assign_criteria(entries: list[dict[str, Any]], n: int, rng: random.Random) -> None:
+    """Spread the n criteria of a task over the blocks of one respondent: every criterion is shown
+    equally often (one block more for some criteria when the blocks do not divide evenly), on blocks
+    drawn at random; a repeated block keeps the criterion of the block it repeats, and an attention
+    block gets a criterion at random."""
+    base = [e for e in entries if e["repeat_of"] is None and not e["attention"]]
+    first = list(range(n))
+    rng.shuffle(first)
+    pool = [first[i % n] for i in range(len(base))]
+    rng.shuffle(pool)
+    by_block = {}
+    for e, c in zip(base, pool):
+        e["criterion"] = c
+        by_block[e["design_block"]] = c
+    for e in entries:
+        if e["repeat_of"] is not None:
+            e["criterion"] = by_block.get(e["repeat_of"], rng.randrange(n))
+        elif e["attention"]:
+            e["criterion"] = rng.randrange(n)
 
 
 def form_order(response: Response, module: dict[str, Any], occasion: int) -> list[str]:
@@ -215,6 +238,10 @@ def current_screen(survey, response: Response) -> Screen | None:
                 arms = response.assignments
                 arms[module["key"]] = assigned
                 response.assignments = arms
+            state = response.state
+            if state.get("history"):
+                state["history"] = []  # no way back past a random assignment
+                response.state = state
             skip = True
         if not skip and module["type"] in ("stimulus",) and content_for(module, response, answers) is None:
             skip = True
@@ -249,6 +276,42 @@ def advance(response: Response, *, next_step: bool = False, to_step: int | None 
     response.state = state
 
 
+# Screens of these types close the way back once submitted: the consent, the material of an
+# experiment, the choice of a material and the debriefing. A module with "lock": true does the same.
+LOCK_TYPES = ("consent", "stimulus", "choice", "debrief")
+
+
+def note_step(survey, response: Response, screen: Screen) -> None:
+    """After a submitted screen: keep its position for the Back button, or close the way back."""
+    if not survey.settings.get("allow_back"):
+        return
+    state = response.state
+    now = (int(state.get("index", 0)), int(state.get("step", 0)))
+    if now <= (screen.index, screen.step):
+        return
+    if screen.module["type"] in LOCK_TYPES or screen.module.get("lock"):
+        state["history"] = []
+    else:
+        state.setdefault("history", []).append([screen.index, screen.step])
+    response.state = state
+
+
+def can_go_back(survey, response: Response) -> bool:
+    return bool(survey.settings.get("allow_back")) and bool(response.state.get("history"))
+
+
+def go_back(survey, response: Response) -> bool:
+    """Return to the screen submitted before the current one; False when there is none."""
+    if not can_go_back(survey, response):
+        return False
+    state = response.state
+    history = state.get("history") or []
+    index, step = history.pop()
+    state.update({"history": history, "index": index, "step": step})
+    response.state = state
+    return True
+
+
 def progress(survey, response: Response) -> float:
     n = max(len(survey.modules), 1)
     state = response.state
@@ -278,7 +341,7 @@ def start_retest(survey, response: Response) -> bool:
     state = response.state
     if int(state.get("occasion", 1)) == 2:
         return True
-    state.update({"occasion": 2, "index": 0, "step": 0})
+    state.update({"occasion": 2, "index": 0, "step": 0, "history": []})
     response.state = state
     return True
 
@@ -302,6 +365,8 @@ def mark_submitted(response: Response, screen: Screen, client_ms: Any, paradata:
     if row is None:
         row = ScreenTime(response_id=response.id, screen_key=screen.key, module_key=screen.module["key"], occasion=screen.occasion)
         db.session.add(row)
+    if row.submitted_at is not None:
+        row.revisions = (row.revisions or 0) + 1
     row.submitted_at = utcnow()
     try:
         ms = int(float(client_ms))
@@ -542,6 +607,7 @@ def submit_block(response: Response, module: dict[str, Any], occasion: int, step
         db.session.add(row)
     row.variant = entry.get("variant", "")
     row.design_block = entry.get("design_block")
+    row.criterion = entry.get("criterion")
     row.repeat_of = entry.get("repeat_of")
     row.attention = bool(entry.get("attention"))
     row.attention_passed = passed

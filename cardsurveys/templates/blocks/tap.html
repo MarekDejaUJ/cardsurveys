@@ -1,5 +1,5 @@
 {% extends "blocks/_frame.html" %}
-{% from "macros.html" import screen_fields with context %}
+{% from "macros.html" import screen_fields, back_button with context %}
 {% block subhead %}{{ super() }}{% if module.instructions and screen.step == 0 %}<div class="sub">{{ md(module.instructions|tx(lang, fallback)) }}</div>{% endif %}{% endblock %}
 {% block content %}
 <div class="progress"><span>{% if module.practice %}{{ t('tap.practice', lang) }}{% else %}{{ t('blocks.block_n', lang, n=screen.step + 1, total=screen.total_steps) }}{% endif %}</span>
@@ -12,7 +12,7 @@
   {% for text in panel %}<div class="content stimulus">{{ md(text|tx(lang, fallback)) }}</div>{% endfor %}
 </details>
 {% endif %}
-<section id="tapTask" data-cards='{{ cards|tojson }}' data-strings='{{ ui_strings("tap.", lang)|tojson }}' data-closes="{{ 1 if anchor_closes else 0 }}" data-attention="{{ attention_position }}">
+<section id="tapTask" data-cards='{{ cards|tojson }}' data-strings='{{ ui_strings("tap.", lang)|tojson }}' data-closes="{{ 1 if anchor_closes else 0 }}" data-attention="{{ attention_position }}"{% if initial %} data-initial='{{ initial|tojson }}'{% endif %}>
   <div class="tray-label">{{ t('tap.hint', lang) }}</div>
   <div id="tapArea"></div>
   <div id="tapSequence" aria-live="polite"></div>
@@ -28,6 +28,7 @@
     </fieldset>
     {% endif %}
     <div class="controls">
+      {{ back_button() }}
       <button class="act ghost" type="button" id="undoTap">{{ t('tap.undo', lang) }}</button>
       <button class="act ghost" type="button" id="resetTap">{{ t('blocks.reset', lang) }}</button>
       <button class="act primary" type="submit" id="submitBlock" disabled>{{ t('blocks.next', lang) }}</button>

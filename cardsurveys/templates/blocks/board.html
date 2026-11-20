@@ -1,5 +1,5 @@
 {% extends "blocks/_frame.html" %}
-{% from "macros.html" import screen_fields with context %}
+{% from "macros.html" import screen_fields, back_button with context %}
 {% block subhead %}{{ super() }}{% if module.instructions %}<div class="sub">{{ md(module.instructions|tx(lang, fallback)) }}</div>{% endif %}{% endblock %}
 {% block content %}
 <p class="criterion">{{ t('board.relation_intro', lang) }} {{ module.relation|tx(lang, fallback) }}</p>
@@ -15,6 +15,7 @@
         {{ screen_fields(screen) }}
         <input type="hidden" name="placements_json" id="placementsJson">
         <div class="controls">
+          {{ back_button() }}
           <button class="act ghost" type="button" id="resetBoard">{{ t('board.reset', lang) }}</button>
           <button class="act primary" type="submit" id="submitBoard" disabled>{{ t('board.submit', lang) }}</button>
         </div>

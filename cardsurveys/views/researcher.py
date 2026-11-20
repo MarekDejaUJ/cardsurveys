@@ -126,7 +126,7 @@ def survey_settings(survey_id: int):
         s["title"] = ED.i18n_from(request.form, "title", langs)
         desc = ED.i18n_from(request.form, "description", langs)
         s["description"] = desc
-        for flag in ("detect_browser_language", "allow_language_switch", "retest"):
+        for flag in ("detect_browser_language", "allow_language_switch", "retest", "allow_back"):
             s[flag] = request.form.get(flag) == "on"
         if _store(survey, definition):
             flash(i18n.t("studio.saved"), "ok")

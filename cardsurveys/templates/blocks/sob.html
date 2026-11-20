@@ -1,11 +1,11 @@
 {% extends "blocks/_frame.html" %}
-{% from "macros.html" import screen_fields with context %}
+{% from "macros.html" import screen_fields, back_button with context %}
 {% block subhead %}{{ super() }}{% if module.instructions %}<div class="sub">{{ md(module.instructions|tx(lang, fallback)) }}</div>{% endif %}{% endblock %}
 {% block content %}
 <div class="progress"><span>{{ t('blocks.block_n', lang, n=screen.step + 1, total=screen.total_steps) }}</span>
   <div class="pips">{% for i in range(screen.total_steps) %}<span class="pip{% if i < screen.step %} done{% elif i == screen.step %} cur{% endif %}"></span>{% endfor %}</div></div>
 <p class="criterion">{{ t('sob.relation_intro', lang) }} {{ criterion|tx(lang, fallback) }}</p>
-<section id="sobTask" data-cards='{{ cards|tojson }}' data-strings='{{ ui_strings("sob.", lang)|tojson }}' {% if module.side_label %}data-side-label="{{ module.side_label|tx(lang, fallback) }}"{% endif %}>
+<section id="sobTask" data-cards='{{ cards|tojson }}' data-strings='{{ ui_strings("sob.", lang)|tojson }}' {% if module.side_label %}data-side-label="{{ module.side_label|tx(lang, fallback) }}"{% endif %}{% if initial %} data-initial='{{ initial|tojson }}'{% endif %}>
   <div class="layout">
     <div id="sobArea"></div>
     <div>
@@ -17,6 +17,7 @@
         <input type="hidden" name="events_json" id="eventsJson">
         <input type="hidden" name="block_ms" id="blockMs">
         <div class="controls">
+          {{ back_button() }}
           <button class="act ghost" type="button" id="resetBlock">{{ t('blocks.reset', lang) }}</button>
           <button class="act primary" type="submit" id="submitBlock" disabled>{{ t('blocks.next', lang) }}</button>
         </div>

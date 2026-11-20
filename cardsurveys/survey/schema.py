@@ -31,7 +31,8 @@ _OPTION = {"type": "object", "required": ["value", "label"], "properties": {"val
 _BLOCKS = {"type": "array", "items": {"type": "array", "items": _CODE, "minItems": 2}}
 _CONDITION: dict[str, Any] = {"type": "object"}  # checked structurally in _check_condition
 
-_COMMON = {"key": _KEY, "type": {"enum": list(MODULE_TYPES)}, "title": _I18N, "condition": _CONDITION, "retest": {"type": "boolean"}}
+_COMMON = {"key": _KEY, "type": {"enum": list(MODULE_TYPES)}, "title": _I18N, "condition": _CONDITION, "retest": {"type": "boolean"},
+           "lock": {"type": "boolean"}}
 
 
 def _module(props: dict[str, Any], required: list[str]) -> dict[str, Any]:
@@ -78,6 +79,7 @@ MODULE_SCHEMAS = {
     }, ["relation", "items"]),
     "tap_blocks": _module({
         "instructions": _I18N, "criterion": _I18N, "items": {"type": "array", "items": _CARD},
+        "criteria": {"type": "array", "items": _I18N, "minItems": 2, "maxItems": 20},
         **_BLOCK_SOURCE,
         "anchor": _CARD,
         "anchor_closes": {"type": "boolean"},
@@ -128,6 +130,7 @@ BUNDLE_SCHEMA = {
                 "detect_browser_language": {"type": "boolean"},
                 "allow_language_switch": {"type": "boolean"},
                 "retest": {"type": "boolean"},
+                "allow_back": {"type": "boolean"},
                 "slug": {"type": "string", "pattern": "^[A-Za-z0-9_-]{4,32}$"},
             },
             "additionalProperties": False,
@@ -160,6 +163,8 @@ def _texts(module: dict[str, Any]) -> list[tuple[str, Any]]:
                   "criterion", "side_label", "attention_label", "anchor_note", "panel_label", "prompt"):
         if field in module and module[field]:
             out.append((field, module[field]))
+    for i, c in enumerate(module.get("criteria", []) or []):
+        out.append((f"criteria.{i}", c))
     for i, q in enumerate(module.get("questions", []) or []):
         out.append((f"questions.{i}.label", q.get("label")))
         if q.get("help"):

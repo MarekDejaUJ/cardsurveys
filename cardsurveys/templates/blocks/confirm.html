@@ -1,5 +1,5 @@
 {% extends "blocks/_frame.html" %}
-{% from "macros.html" import screen_fields with context %}
+{% from "macros.html" import screen_fields, back_button with context %}
 {% block content %}
 <section class="screen narrow">
   <p class="prompt">{{ t('board.confirm_intro', lang) }}</p>
@@ -15,7 +15,7 @@
       </div>
     </div>
     {% endfor %}
-    <div class="controls"><button class="act primary" type="submit">{{ t('survey.next', lang) }}</button></div>
+    <div class="controls">{{ back_button() }}<button class="act primary" type="submit">{{ t('survey.next', lang) }}</button></div>
   </form>
 </section>
 {% endblock %}

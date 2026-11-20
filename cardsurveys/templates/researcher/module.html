@@ -13,7 +13,7 @@
     {% for name, kind, extra in spec %}
       {% if kind in ('i18n_line', 'i18n_area') %}
         {{ i18n_inputs(name, values, langs, area=(kind == 'i18n_area'), label=t('field_label.' ~ name)) }}
-      {% elif kind in ('cards', 'blocks', 'tiers', 'arms', 'options_preview') %}
+      {% elif kind in ('cards', 'blocks', 'tiers', 'arms', 'options_preview', 'i18n_list') %}
         <label class="field">{{ t('field_label.' ~ name) }}<span class="muted">{{ t('field_hint.' ~ kind, langs=langs|join(' | ')) }}</span><textarea name="{{ name }}" class="codearea">{{ values.get(name, '') }}</textarea></label>
       {% elif kind == 'card' %}
         <label class="field">{{ t('field_label.' ~ name) }}<span class="muted">{{ t('field_hint.card', langs=langs|join(' | ')) }}</span><input name="{{ name }}" value="{{ values.get(name, '') }}" class="copyline"></label>

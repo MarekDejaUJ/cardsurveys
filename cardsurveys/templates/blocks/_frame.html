@@ -12,9 +12,10 @@
 {% endblock %}
 {% block subhead %}
 {% if response and response.preview %}<div class="preview-banner">{{ t('survey.preview_banner', lang) }}</div>{% endif %}
-{% if progress is defined %}<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ (progress * 100)|round|int }}"><span style="width: {{ (progress * 100)|round(1) }}%"></span></div>{% endif %}
+{% if progress is defined %}<div class="bar-label">{{ t('survey.progress', lang, pct=(progress * 100)|round|int) }}</div><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ (progress * 100)|round|int }}"><span style="width: {{ (progress * 100)|round(1) }}%"></span></div>{% endif %}
 {% endblock %}
 {% block footer %}
+{% if can_back %}<form method="post" id="backForm" action="{{ url_for('public.back', uuid=response.uuid) }}" hidden><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="screen" value="{{ screen.key }}"></form>{% endif %}
 <footer class="foot">
   {% if response and response.status == 'started' %}
   <form method="post" action="{{ url_for('public.withdraw', uuid=response.uuid) }}" class="withdraw">

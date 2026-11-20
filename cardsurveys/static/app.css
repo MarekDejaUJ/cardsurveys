@@ -230,7 +230,8 @@ nav.sitenav a,nav.sitenav button{font-family:ui-monospace,monospace;font-size:11
 nav.sitenav a.active{background:var(--ink);color:#fff}
 nav.sitenav form{margin:0}
 .preview-banner{background:var(--dep-tint);border:1.5px dashed var(--t-dep);color:var(--warn);font-family:ui-monospace,monospace;font-size:12px;padding:6px 10px;margin:0 0 12px}
-.bar{height:6px;background:var(--line);margin:10px 0 18px;position:relative}
+.bar-label{font-family:ui-monospace,monospace;font-size:12px;color:var(--muted,#666);margin:10px 0 4px}
+.bar{height:6px;background:var(--line);margin:0 0 18px;position:relative}
 .bar span{position:absolute;left:0;top:0;bottom:0;background:var(--t-found)}
 .criterion{font-size:16px;font-weight:600;margin:6px 0 14px;padding:10px 12px;border-left:4px solid var(--t-dep);background:var(--card)}
 .content{font-size:15px;line-height:1.55;color:var(--ink)}

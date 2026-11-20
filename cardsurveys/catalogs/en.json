@@ -21,7 +21,7 @@
   "privacy.title": "Privacy",
   "privacy.p1": "Respondents answer without an account. Each response receives a random identifier. The system stores no network address and no description of the browser.",
   "privacy.p2": "A respondent can withdraw at any time. A withdrawal deletes every answer and arrangement of the response; only the information that a response was withdrawn remains.",
-  "privacy.p3": "The system records how long each screen was open, so that researchers can check the burden of a survey. On screens where the researcher switches it on, the system also records which links of the screen were opened and how often and how long the page was left; it records nothing about other pages. These records are not linked to anyone's identity.",
+  "privacy.p3": "The system records how long each screen was open, so that researchers can check the burden of a survey. On screens where the researcher switches it on, the system also records which links of the screen were opened and how often and how long the page was left; it records nothing about other pages. When a survey allows returning to earlier screens, the system counts how often a screen was answered again. These records are not linked to anyone's identity.",
   "privacy.p4": "Researcher accounts store an e-mail address and a password hash. The researcher responsible for a survey states its purpose, legal basis and retention period in the survey's consent text.",
   "error.home": "Go to the start page",
   "error.400.title": "Request not understood",
@@ -532,5 +532,11 @@
   "msg.condition_unknown_answer": "{where}: the condition uses {name}, which no earlier question asks.",
   "msg.condition_unknown_randomizer": "{where}: the condition uses {name}, which is no earlier random assignment.",
   "tap.panel_default": "Your material for this task",
-  "msg.panel_unknown_module": "{where}: panel_from names {name}, which is not an earlier stimulus or choice module."
+  "msg.panel_unknown_module": "{where}: panel_from names {name}, which is not an earlier stimulus or choice module.",
+  "survey.back": "Back",
+  "survey.progress": "Progress: {pct}%",
+  "field_label.criteria": "Criteria spread over the blocks (one per line; each shown equally often, on blocks drawn at random for every respondent)",
+  "field_label.lock": "No return to earlier screens once this module is submitted",
+  "field_hint.i18n_list": "One per line: {langs}",
+  "studio.allow_back": "Back button: respondents may return to earlier screens; the consent, a random assignment, a material and a module marked as closing the way back close the way back"
 }

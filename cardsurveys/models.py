@@ -214,6 +214,7 @@ class BlockResponse(db.Model):
     variant = db.Column(db.String(64), nullable=False, default="")
     design_block = db.Column(db.Integer, nullable=True)
     repeat_of = db.Column(db.Integer, nullable=True)
+    criterion = db.Column(db.Integer, nullable=True)
     attention = db.Column(db.Boolean, nullable=False, default=False)
     attention_passed = db.Column(db.Boolean, nullable=True)
     cards_json = db.Column(db.Text, nullable=False, default="[]")
@@ -252,6 +253,7 @@ class ScreenTime(db.Model):
     leaves = db.Column(db.Integer, nullable=True)
     away_ms = db.Column(db.Integer, nullable=True)
     links_json = db.Column(db.Text, nullable=True)
+    revisions = db.Column(db.Integer, nullable=False, default=0)
 
 
 class Allocation(db.Model):

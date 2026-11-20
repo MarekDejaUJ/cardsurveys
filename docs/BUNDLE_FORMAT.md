@@ -23,11 +23,12 @@ Every text a respondent sees is a translation object, a map from language code t
 | `detect_browser_language` | choose the respondent's language from the browser (default true) |
 | `allow_language_switch` | show the language switch (default true) |
 | `retest` | the survey has a second session (modules marked `"retest": true` are repeated) |
+| `allow_back` | show a Back button: the respondent returns to the screen submitted before, with the answers given (forms filled in, the taps of a block, the placements of a board or SOB block), and may change them; the way back closes behind the consent, a random assignment, a material (`stimulus`), a choice of material, the debriefing and every module with `"lock": true` (default false) |
 | `slug` | link code (only in exported bundles; import gives a new code unless asked to keep it) |
 
 ## Common keys of every module
 
-`key` (unique code, letters, digits and `_`), `type`, `title` (translation object, optional), `condition` (optional, see below), `retest` (optional).
+`key` (unique code, letters, digits and `_`), `type`, `title` (translation object, optional), `condition` (optional, see below), `retest` (optional), `lock` (optional, `true`: once the module is submitted, the Back button no longer reaches it or any earlier screen).
 
 ## Module types
 
@@ -52,6 +53,7 @@ Every text a respondent sees is a translation object, a map from language code t
 | `duplicates` | number of design blocks shown a second time, later in the sequence |
 | `attention` | number of attention blocks: a design block with an extra card (`attention_label`) to be tapped last |
 | `attention_position` | `last` (default) or `first`: where the extra card of an attention block has to be tapped; beside an anchor that closes the block, the anchor is left out of the count |
+| `criteria` | 2 to 20 criteria (translation objects) spread over the blocks in place of `criterion`: every criterion is shown on equally many blocks (one more for some criteria when the blocks do not divide evenly), on blocks drawn at random for every respondent; a repeated block keeps the criterion of the block it repeats, an attention block gets one at random, and `blocks.csv` records the criterion of every screen. `criterion` stays required and describes the task in the codebook |
 | `practice` | the task is a practice task |
 | `reference_order` | the correct order as tiers of item codes, first tier best |
 | `variants_by`, `variants` | an earlier answer that chooses the item set: `{"value": {"items", "design" or "blocks", "reference_order", "criterion"}}`; the variant `"*"` serves every other value |

@@ -60,6 +60,10 @@ def server(tmp_path_factory):
         s = bundles.create_from_bundle(u, checking_bundle(), ["pl", "en"])
         s.status = "open"
         slugs["checking"] = s.slug
+        from .test_back_criteria import back_bundle
+        s = bundles.create_from_bundle(u, back_bundle(), ["pl", "en"])
+        s.status = "open"
+        slugs["back"] = s.slug
         db.session.commit()
     port = _free_port()
     srv = make_server("127.0.0.1", port, app, threaded=True)
@@ -277,3 +281,32 @@ def test_opened_links_on_a_screen_with_paradata_are_recorded(server, page):
         rows = ScreenTime.query.filter_by(module_key="judge").all()
         links = [json.loads(r.links_json or "[]") for r in rows]
     assert any(any(link[0] == "https://doi.org/10.0000/k2" for link in found) for found in links)
+
+
+def test_back_button_restores_the_taps_of_a_block(server, page):
+    page.goto(server["base"] + f"/s/{server['slugs']['back']}?lang=en")
+    page.click("button[value='agree']")
+    page.wait_for_selector("text=Intro.")
+    assert page.locator("button[form=backForm]").count() == 0
+    with page.expect_navigation():
+        page.click("button.primary")
+    assert "Progress: " in page.inner_text(".bar-label")
+    page.check("input[name=level][value=ma]")
+    with page.expect_navigation():
+        page.click("button.primary")
+    page.wait_for_selector("button.tapcard:not(.done)")
+    page.locator("button.tapcard:not(.anchor)").nth(0).click()
+    page.locator("button.tapcard.anchor").click()
+    with page.expect_navigation():
+        page.click("#submitBlock")
+    assert "Block 2 of" in page.inner_text(".progress")
+    with page.expect_navigation():
+        page.click("button[form=backForm]")
+    assert "Block 1 of" in page.inner_text(".progress")
+    page.wait_for_selector("button.tapcard.done")
+    assert page.locator("button.tapcard.done").count() == 2
+    assert page.locator("button.tapcard.tied").count() == 2
+    assert page.locator("#submitBlock").is_enabled()
+    with page.expect_navigation():
+        page.click("#submitBlock")
+    assert "Block 2 of" in page.inner_text(".progress")
